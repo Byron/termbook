@@ -605,6 +605,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pulldown-cmark-to-cmark"
+version = "0.1.0"
+
+[[package]]
 name = "quick-error"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -783,6 +787,7 @@ name = "termbook-cli"
 version = "0.1.0"
 dependencies = [
  "mdbook 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pulldown-cmark-to-cmark 0.1.0",
 ]
 
 [[package]]

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Byron/termbook.svg?branch=master)](https://travis-ci.org/Byron/termbook)
+
 `termbook` is a command-line tool to build [`mdbook`'s][mdbook] while executing
 `bash` codeblocks and collecting their output to become part of the `mdbook`.
 

@@ -1,0 +1,16 @@
+sudo: required
+
+os:
+  - linux
+
+language: rust
+
+rust:
+  - stable
+
+cache:
+  - cargo
+
+script:
+  - cargo doc
+  - cargo test --all

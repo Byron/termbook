@@ -1,0 +1,6 @@
+.idea/
+.vscode/
+/.docker-cargo-cache
+.DS_Store
+target/
+sy-*.tar.gz

@@ -1,0 +1,24 @@
+[package]
+name = "termbook-cli"
+version = "0.1.0"
+authors = ["Sebastian Thiel <sthiel@thoughtworks.com>"]
+
+description = ""
+license = "Apache-2.0"
+repository = "https://github.com/Byron/termbook"
+homepage = "https://github.com/Byron/termbook"
+documentation = "https://docs.rs/crate/termbook-cli"
+readme = "README.md"
+
+[[bin]]
+name = "termbook"
+path = "src/main.rs"
+
+[lib]
+name = "termbook"
+path = "src/lib.rs"
+
+[dependencies]
+mdbook = "0.1.1"
+
+[workspace]

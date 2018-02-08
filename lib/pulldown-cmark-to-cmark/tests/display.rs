@@ -96,7 +96,10 @@ mod start {
     }
     #[test]
     fn table() {
-        assert_eq!(s(Start(Table(vec![Left, Center, Right, Alignment::None]))), "")
+        assert_eq!(
+            s(Start(Table(vec![Left, Center, Right, Alignment::None]))),
+            ""
+        )
     }
     #[test]
     fn table_head() {
@@ -168,7 +171,10 @@ mod end {
     }
     #[test]
     fn link() {
-        assert_eq!(s(End(Link("/uri".into(), "title".into()))), "](/uri \"title\")")
+        assert_eq!(
+            s(End(Link("/uri".into(), "title".into()))),
+            "](/uri \"title\")"
+        )
     }
     #[test]
     fn link_without_title() {
@@ -176,7 +182,10 @@ mod end {
     }
     #[test]
     fn image() {
-        assert_eq!(s(End(Image("/uri".into(), "title".into()))), "](/uri \"title\")")
+        assert_eq!(
+            s(End(Image("/uri".into(), "title".into()))),
+            "](/uri \"title\")"
+        )
     }
     #[test]
     fn image_without_title() {
@@ -184,7 +193,10 @@ mod end {
     }
     #[test]
     fn table() {
-        assert_eq!(s(End(Table(vec![Left, Center, Right, Alignment::None]))), "")
+        assert_eq!(
+            s(End(Table(vec![Left, Center, Right, Alignment::None]))),
+            ""
+        )
     }
     #[test]
     fn table_head() {
@@ -200,6 +212,29 @@ mod end {
     }
 }
 
+#[test]
+fn hardbreak() {
+    assert_eq!(s(Event::HardBreak), "")
+}
+#[test]
+fn softbreak() {
+    assert_eq!(s(Event::SoftBreak), "")
+}
+#[test]
+fn html() {
+    assert_eq!(
+        s(Event::Html("<table>hi</table>".into())),
+        "<table>hi</table>"
+    )
+}
+#[test]
+fn inlinehtml() {
+    assert_eq!(s(Event::InlineHtml("<br>".into())), "<br>")
+}
+#[test]
+fn text() {
+    assert_eq!(s(Event::Text("asdf".into())), "asdf")
+}
 #[test]
 fn footnote_reference() {
     assert_eq!(s(Event::FootnoteReference("asdf".into())), "[^asdf]")

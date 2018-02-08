@@ -11,6 +11,11 @@ impl<'a> Display for EventDisplay<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use pulldown_cmark::Tag::*;
         match *self.0 {
+            Event::HardBreak => Ok(()),
+            Event::SoftBreak => Ok(()),
+            Event::Text(ref name) => name.fmt(f),
+            Event::InlineHtml(ref name) => name.fmt(f),
+            Event::Html(ref name) => name.fmt(f),
             Event::FootnoteReference(ref name) => write!(f, "[^{}]", name),
             Event::End(ref tag) => match *tag {
                 Header(_) => Ok(()),
@@ -25,13 +30,13 @@ impl<'a> Display for EventDisplay<'a> {
                 TableHead => Ok(()),
                 TableRow => Ok(()),
                 TableCell => '|'.fmt(f),
-                Image(ref uri, ref title)|Link(ref uri, ref title) => {
+                Image(ref uri, ref title) | Link(ref uri, ref title) => {
                     if title.is_empty() {
                         write!(f, "]({})", uri)
                     } else {
                         write!(f, "]({uri} \"{title}\")", uri = uri, title = title)
                     }
-                },
+                }
                 Emphasis => '*'.fmt(f),
                 Strong => "**".fmt(f),
                 Code => '`'.fmt(f),
@@ -60,7 +65,6 @@ impl<'a> Display for EventDisplay<'a> {
                 List(_) => Ok(()),
                 Item => Ok(()),
             },
-            _ => unimplemented!("TBD"),
         }
     }
 }

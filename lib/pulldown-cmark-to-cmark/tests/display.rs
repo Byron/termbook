@@ -2,17 +2,17 @@ extern crate pulldown_cmark;
 extern crate pulldown_cmark_to_cmark;
 
 use pulldown_cmark::Event;
-use pulldown_cmark_to_cmark::{EventDisplay, ItemDisplay, ItemType};
+use pulldown_cmark_to_cmark::display;
 
 fn s(e: Event) -> String {
-    format!("{}", EventDisplay(&e))
+    format!("{}", display::Event(&e))
 }
 
 mod start {
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
     use pulldown_cmark::Alignment::{self, Center, Left, Right};
-    use super::{s, ItemDisplay, ItemType};
+    use super::{display, s};
 
     #[test]
     fn paragraph() {
@@ -52,15 +52,24 @@ mod start {
     }
     #[test]
     fn item_ordered_1() {
-        assert_eq!(format!("{}", ItemDisplay(ItemType::Ordered(1))), "1. ");
+        assert_eq!(
+            format!("{}", display::Item(display::ItemType::Ordered(1))),
+            "1. "
+        );
     }
     #[test]
     fn item_ordered_2() {
-        assert_eq!(format!("{}", ItemDisplay(ItemType::Ordered(2))), "2. ");
+        assert_eq!(
+            format!("{}", display::Item(display::ItemType::Ordered(2))),
+            "2. "
+        );
     }
     #[test]
     fn item_unordered() {
-        assert_eq!(format!("{}", ItemDisplay(ItemType::Unordered)), "* ");
+        assert_eq!(
+            format!("{}", display::Item(display::ItemType::Unordered)),
+            "* "
+        );
     }
     #[test]
     fn footnote_definition() {

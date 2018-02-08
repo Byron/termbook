@@ -1,23 +1,23 @@
-use pulldown_cmark::Event;
+use pulldown_cmark::Event as PDEvent;
 
 use std::fmt::{self, Display};
 
 /// A struct offering a strictly stateless way of displaying [Events][pdcEvent].
 /// [pdcEvent]: https://docs.rs/pulldown-cmark/0.1.0/pulldown_cmark/enum.Event.html
 #[derive(Debug, Clone)]
-pub struct EventDisplay<'a>(pub &'a Event<'a>);
+pub struct Event<'a>(pub &'a PDEvent<'a>);
 
-impl<'a> Display for EventDisplay<'a> {
+impl<'a> Display for Event<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use pulldown_cmark::Tag::*;
         match *self.0 {
-            Event::HardBreak => Ok(()),
-            Event::SoftBreak => Ok(()),
-            Event::Text(ref name) => name.fmt(f),
-            Event::InlineHtml(ref name) => name.fmt(f),
-            Event::Html(ref name) => name.fmt(f),
-            Event::FootnoteReference(ref name) => write!(f, "[^{}]", name),
-            Event::End(ref tag) => match *tag {
+            PDEvent::HardBreak => Ok(()),
+            PDEvent::SoftBreak => Ok(()),
+            PDEvent::Text(ref name) => name.fmt(f),
+            PDEvent::InlineHtml(ref name) => name.fmt(f),
+            PDEvent::Html(ref name) => name.fmt(f),
+            PDEvent::FootnoteReference(ref name) => write!(f, "[^{}]", name),
+            PDEvent::End(ref tag) => match *tag {
                 Header(_) => Ok(()),
                 Table(_) => Ok(()),
                 Rule => Ok(()),
@@ -41,7 +41,7 @@ impl<'a> Display for EventDisplay<'a> {
                 Strong => "**".fmt(f),
                 Code => '`'.fmt(f),
             },
-            Event::Start(ref tag) => match *tag {
+            PDEvent::Start(ref tag) => match *tag {
                 Table(_) => Ok(()),
                 TableHead => Ok(()),
                 TableRow => Ok(()),
@@ -76,9 +76,9 @@ pub enum ItemType {
 }
 
 #[derive(Debug, Clone)]
-pub struct ItemDisplay(pub ItemType);
+pub struct Item(pub ItemType);
 
-impl Display for ItemDisplay {
+impl Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.0 {
             ItemType::Unordered => "* ".fmt(f),

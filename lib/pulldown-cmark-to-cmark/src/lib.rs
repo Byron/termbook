@@ -1,5 +1,6 @@
 extern crate pulldown_cmark;
 
-mod display;
+pub mod display;
+pub mod fmt;
 
 pub use display::*;

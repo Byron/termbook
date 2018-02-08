@@ -12,3 +12,4 @@ documentation = "https://docs.rs/crate/pulldown-cmark-to-cmark"
 readme = "README.md"
 
 [dependencies]
+pulldown-cmark = "0.1.0"

@@ -607,6 +607,9 @@ dependencies = [
 [[package]]
 name = "pulldown-cmark-to-cmark"
 version = "0.1.0"
+dependencies = [
+ "pulldown-cmark 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "quick-error"

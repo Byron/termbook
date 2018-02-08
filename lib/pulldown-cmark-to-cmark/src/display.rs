@@ -13,6 +13,18 @@ impl<'a> Display for EventDisplay<'a> {
         match *self.0 {
             Event::FootnoteReference(ref name) => write!(f, "[^{}]", name),
             Event::End(ref tag) => match *tag {
+                Header(_) => Ok(()),
+                Table(_) => Ok(()),
+                Rule => Ok(()),
+                Paragraph => Ok(()),
+                BlockQuote => Ok(()),
+                FootnoteDefinition(_) => Ok(()),
+                List(_) => Ok(()),
+                Item => Ok(()),
+                CodeBlock(_) => "```".fmt(f),
+                TableHead => Ok(()),
+                TableRow => Ok(()),
+                TableCell => '|'.fmt(f),
                 Image(ref uri, ref title)|Link(ref uri, ref title) => {
                     if title.is_empty() {
                         write!(f, "]({})", uri)
@@ -23,9 +35,12 @@ impl<'a> Display for EventDisplay<'a> {
                 Emphasis => '*'.fmt(f),
                 Strong => "**".fmt(f),
                 Code => '`'.fmt(f),
-                _ => unimplemented!("TBD"),
             },
             Event::Start(ref tag) => match *tag {
+                Table(_) => Ok(()),
+                TableHead => Ok(()),
+                TableRow => Ok(()),
+                TableCell => '|'.fmt(f),
                 Link(_, _) => '['.fmt(f),
                 Image(_, _) => "![".fmt(f),
                 Emphasis => '*'.fmt(f),
@@ -44,7 +59,6 @@ impl<'a> Display for EventDisplay<'a> {
                 CodeBlock(ref info) => "```".fmt(f).and(info.fmt(f)),
                 List(_) => Ok(()),
                 Item => Ok(()),
-                _ => unimplemented!("TBD"),
             },
             _ => unimplemented!("TBD"),
         }

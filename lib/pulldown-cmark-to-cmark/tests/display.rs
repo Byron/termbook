@@ -11,6 +11,7 @@ fn s(e: Event) -> String {
 mod start {
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
+    use pulldown_cmark::Alignment::{self, Center, Left, Right};
     use super::{s, ItemDisplay, ItemType};
 
     #[test]
@@ -93,13 +94,54 @@ mod start {
     fn image_without_title() {
         assert_eq!(s(Start(Image("uri".into(), "".into()))), "![")
     }
+    #[test]
+    fn table() {
+        assert_eq!(s(Start(Table(vec![Left, Center, Right, Alignment::None]))), "")
+    }
+    #[test]
+    fn table_head() {
+        assert_eq!(s(Start(TableHead)), "")
+    }
+    #[test]
+    fn table_row() {
+        assert_eq!(s(Start(TableRow)), "")
+    }
+    #[test]
+    fn table_cell() {
+        assert_eq!(s(Start(TableCell)), "|")
+    }
 }
 
 mod end {
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
+    use pulldown_cmark::Alignment::{self, Center, Left, Right};
     use super::s;
 
+    #[test]
+    fn header() {
+        assert_eq!(s(End(Header(2))), "")
+    }
+    #[test]
+    fn paragraph() {
+        assert_eq!(s(End(Paragraph)), "")
+    }
+    #[test]
+    fn rule() {
+        assert_eq!(s(End(Rule)), "")
+    }
+    #[test]
+    fn blockquote() {
+        assert_eq!(s(End(BlockQuote)), "")
+    }
+    #[test]
+    fn codeblock() {
+        assert_eq!(s(End(CodeBlock("asdf".into()))), "```")
+    }
+    #[test]
+    fn footnote_definition() {
+        assert_eq!(s(End(FootnoteDefinition("asdf".into()))), "")
+    }
     #[test]
     fn emphasis() {
         assert_eq!(s(End(Emphasis)), "*")
@@ -107,6 +149,18 @@ mod end {
     #[test]
     fn strong() {
         assert_eq!(s(End(Strong)), "**")
+    }
+    #[test]
+    fn list_unordered() {
+        assert_eq!(s(End(List(None))), "")
+    }
+    #[test]
+    fn list_ordered() {
+        assert_eq!(s(End(List(Some(1)))), "")
+    }
+    #[test]
+    fn item() {
+        assert_eq!(s(End(Item)), "")
     }
     #[test]
     fn code() {
@@ -127,6 +181,22 @@ mod end {
     #[test]
     fn image_without_title() {
         assert_eq!(s(End(Image("/uri".into(), "".into()))), "](/uri)")
+    }
+    #[test]
+    fn table() {
+        assert_eq!(s(End(Table(vec![Left, Center, Right, Alignment::None]))), "")
+    }
+    #[test]
+    fn table_head() {
+        assert_eq!(s(End(TableHead)), "")
+    }
+    #[test]
+    fn table_row() {
+        assert_eq!(s(End(TableRow)), "")
+    }
+    #[test]
+    fn table_cell() {
+        assert_eq!(s(End(TableCell)), "|")
     }
 }
 

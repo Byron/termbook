@@ -37,11 +37,15 @@ where
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
         match *event.borrow() {
+            Start(_) => while state.newlines_before_start != 0 {
+                f.write_char('\n')?;
+                state.newlines_before_start -= 1;
+            },
             End(ref tag) => match *tag {
                 Header(_) => state.newlines_before_start += options.newlines_after_headline,
-                _ => {},
+                _ => {}
             },
-            _ => {},
+            _ => {}
         }
         write!(f, "{}", display::Event(event.borrow()))?;
     }

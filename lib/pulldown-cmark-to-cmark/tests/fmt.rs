@@ -226,13 +226,55 @@ mod list {
     }
 
     #[test]
-    fn ordered_and_unordered() {
+    fn ordered_and_unordered_nested_and_ordered() {
+        assert_eq!(
+            fmts("1. *b*\n   * *b*\n1. c"),
+            (
+                "1. *b*\n   * *b*\n1. c".into(),
+                State {
+                    newlines_before_start: 1,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn ordered_and_multiple_unordered() {
+        assert_eq!(
+            fmts("11. *b*\n    * *b*\n    * c"),
+            (
+                "11. *b*\n    * *b*\n    * c".into(),
+                State {
+                    newlines_before_start: 1,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn unordered_ordered_unordered() {
+        assert_eq!(
+            fmts("* a\n  1. b\n* c"),
+            (
+                 "* a\n  1. b\n* c".into(),
+                State {
+                    newlines_before_start: 1,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn ordered_and_unordered_nested() {
         assert_eq!(
             fmts("1. *b*\n   * *b*"),
             (
                 "1. *b*\n   * *b*".into(),
                 State {
-                    newlines_before_start: 2,
+                    newlines_before_start: 1,
                     ..Default::default()
                 }
             )

@@ -1,4 +1,4 @@
-use std::fmt::{self};
+use std::fmt;
 use std::borrow::Borrow;
 use std::borrow::Cow;
 use pulldown_cmark::Event;
@@ -59,14 +59,16 @@ where
                     Start(List(ref list_type)) => {
                         state.list_stack.push(list_type.clone());
                         if state.list_stack.len() > 1 {
-                            state.padding.push(match state.list_stack[state.list_stack.len()-2] {
-                                None => "  ".into(),
-                                Some(n) => format!("{}. ", n)
-                                    .chars()
-                                    .map(|_| ' ')
-                                    .collect::<String>()
-                                    .into(),
-                            });
+                            state.padding.push(
+                                match state.list_stack[state.list_stack.len() - 2] {
+                                    None => "  ".into(),
+                                    Some(n) => format!("{}. ", n)
+                                        .chars()
+                                        .map(|_| ' ')
+                                        .collect::<String>()
+                                        .into(),
+                                },
+                            );
                             state.newlines_before_start += options.newlines_after_rest;
                         }
                     }
@@ -82,7 +84,9 @@ where
                 Header(_) => state.newlines_before_start += options.newlines_after_headline,
                 Paragraph => state.newlines_before_start += options.newlines_after_paragraph,
                 Table(_) | TableRow | TableHead | Rule | CodeBlock(_) | Item => {
-                    state.newlines_before_start += options.newlines_after_rest
+                    if state.newlines_before_start < options.newlines_after_rest {
+                        state.newlines_before_start += options.newlines_after_rest
+                    }
                 }
                 List(_) => {
                     state.list_stack.pop();
@@ -131,5 +135,3 @@ where
 {
     cmark_with_options(events, f, state, Options::default())
 }
-
-

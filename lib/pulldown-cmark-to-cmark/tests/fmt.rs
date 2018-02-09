@@ -210,6 +210,52 @@ mod inline_elements {
     }
 }
 
+mod blockquote {
+    use super::{fmte, fmtes, fmts, Event, State, Tag};
+
+    #[test]
+    fn it_pops_padding_on_quote_end() {
+        assert_eq!(
+            fmtes(
+                &[Event::End(Tag::BlockQuote),],
+                State {
+                    padding: vec![" > ".into()],
+                    ..Default::default()
+                }
+            ).1,
+            State {
+                padding: vec![],
+                ..Default::default()
+            }
+        )
+    }
+
+    #[test]
+    fn it_pushes_padding_on_quote_start() {
+        assert_eq!(
+            fmte(&[Event::Start(Tag::BlockQuote),]).1,
+            State {
+                padding: vec![" > ".into()],
+                ..Default::default()
+            }
+        )
+    }
+
+    #[test]
+    fn simple() {
+        assert_eq!(
+            fmts(" > a\n > b"),
+            (
+                " > a\n > b".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+}
+
 mod codeblock {
     use super::{fmts, State};
 

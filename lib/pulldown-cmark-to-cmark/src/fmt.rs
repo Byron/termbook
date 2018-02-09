@@ -58,6 +58,7 @@ where
         match *event.borrow() {
             ref e @ Html(_) | ref e @ Start(_) => {
                 match *e {
+                    Start(BlockQuote) => state.padding.push(" > ".into()),
                     Start(List(ref list_type)) => {
                         state.list_stack.push(list_type.clone());
                         if state.list_stack.len() > 1 {
@@ -97,8 +98,10 @@ where
                         state.padding.pop();
                     }
                 }
-                BlockQuote
-                | Strong
+                BlockQuote => {
+                    state.padding.pop();
+                }
+                Strong
                 | Emphasis
                 | Code
                 | Image(_, _)

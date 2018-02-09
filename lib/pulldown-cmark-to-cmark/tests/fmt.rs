@@ -126,6 +126,50 @@ fn it_applies_newlines_before_start_before_any_start_tag() {
     )
 }
 
+mod padding {
+    use super::{fmtes, Event, State, Tag};
+
+    #[test]
+    fn is_not_used_if_there_is_no_printable_item() {
+        assert_eq!(
+            fmtes(
+                &[Event::End(Tag::Item)],
+                State {
+                    padding: vec!["  ".into(), " ".into()],
+                    ..Default::default()
+                }
+            ),
+            (
+                "".into(),
+                State {
+                    newlines_before_start: 1,
+                    padding: vec!["  ".into(), " ".into()],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
+    fn is_used_if_there_is_a_printable_item() {
+        assert_eq!(
+            fmtes(
+                &[Event::Text("h".into()),],
+                State {
+                    padding: vec!["  ".into(), " ".into()],
+                    ..Default::default()
+                }
+            ),
+            (
+                "   h".into(),
+                State {
+                    padding: vec!["  ".into(), " ".into()],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+}
+
 mod list {
     use super::{fmte, fmtes, fmts, Event, State, Tag};
 
@@ -135,15 +179,12 @@ mod list {
             fmte(&[
                 Event::Start(Tag::List(None)),
                 Event::Start(Tag::List(Some(42)))
-            ],),
-            (
-                "".into(),
-                State {
-                    list_stack: vec![None, Some(42)],
-                    padding: vec!["    ".into()],
-                    ..Default::default()
-                }
-            )
+            ]).1,
+            State {
+                list_stack: vec![None, Some(42)],
+                padding: vec!["    ".into()],
+                ..Default::default()
+            }
         )
     }
 

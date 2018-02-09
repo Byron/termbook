@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self, Write};
 use std::borrow::Borrow;
 use std::borrow::Cow;
 use pulldown_cmark::Event;
@@ -40,6 +40,25 @@ where
     F: fmt::Write,
 {
     let mut state = state.unwrap_or_default();
+    fn write_padding_if_needed<'a, F>(
+        f: &mut F,
+        e: &Event<'a>,
+        p: &[Cow<'static, str>],
+    ) -> fmt::Result
+    where
+        F: fmt::Write,
+    {
+        let mut tf = WroteAny(false);
+        write!(tf, "{}", display::Event(e)).ok();
+
+        if tf.0 {
+            for prefix in p {
+                write!(f, "{}", prefix)?;
+            }
+        }
+        Ok(())
+    }
+
     for event in events {
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
@@ -95,7 +114,11 @@ where
                 Some(&None) => write!(f, "{}", display::Item(display::ItemType::Unordered)),
                 None => Ok(()),
             },
-            _ => write!(f, "{}", display::Event(event.borrow())),
+            _ => write_padding_if_needed(&mut f, event.borrow(), &state.padding).and(write!(
+                f,
+                "{}",
+                display::Event(event.borrow())
+            )),
         }?;
     }
     Ok(state)
@@ -112,4 +135,13 @@ where
     F: fmt::Write,
 {
     cmark_with_options(events, f, state, Options::default())
+}
+
+struct WroteAny(pub bool);
+
+impl fmt::Write for WroteAny {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.0 |= !s.is_empty();
+        Ok(())
+    }
 }

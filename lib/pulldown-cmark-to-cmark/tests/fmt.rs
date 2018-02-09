@@ -52,7 +52,6 @@ mod lazy_newlines {
     #[test]
     fn after_anything_else_it_has_one_newline() {
         for e in &[
-            Event::End(Tag::CodeBlock("".into())),
             Event::End(Tag::Item),
             Event::End(Tag::Rule),
             Event::End(Tag::TableRow),
@@ -71,7 +70,7 @@ mod lazy_newlines {
 
     #[test]
     fn after_some_types_it_has_multiple_newlines() {
-        for md in &["paragraph", "## headline"] {
+        for md in &["paragraph", "## headline", "```\n```"] {
             assert_eq!(
                 fmts(md),
                 (
@@ -145,6 +144,109 @@ mod padding {
                 State {
                     newlines_before_start: 0,
                     padding: vec!["  ".into()],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+}
+
+mod inline_elements {
+    use super::{fmts, State};
+
+    #[test]
+    fn image() {
+        assert_eq!(
+            fmts("![a](b)\n![c][d]\n[d]: e"),
+            (
+                "![a](b)\n![c][d]\n[d]: e".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn footnote() {
+        assert_eq!(
+            fmts("a [^b]\n[^b]: c"),
+            (
+                "a [^b]\n[^b]: c".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
+    fn links() {
+        assert_eq!(
+            fmts("[a](b)\n[c][d]\n[d]: e"),
+            (
+                "[a](b)\n[c][d]\n[d]: e".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn various() {
+        assert_eq!(
+            fmts("*a* b **c**\n<br>\nd\n\ne `c`"),
+            (
+                "*a* b **c**\n<br>\nd\n\ne `c`".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+}
+
+mod codeblock {
+    use super::{fmts, State};
+
+    #[test]
+    fn simple_and_paragraph() {
+        assert_eq!(
+            fmts("```hi\nsome\ntext\n```\na"),
+            (
+                "```hi\nsome\ntext\n```\n\na".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
+    fn empty() {
+        assert_eq!(
+            fmts("```\n```"),
+            (
+                "```\n```".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
+    fn simple() {
+        assert_eq!(
+            fmts("```hi\nsome\ntext\n```"),
+            (
+                "```hi\nsome\ntext\n```".into(),
+                State {
+                    newlines_before_start: 2,
                     ..Default::default()
                 }
             )
@@ -258,7 +360,7 @@ mod list {
         assert_eq!(
             fmts("* a\n  1. b\n* c"),
             (
-                 "* a\n  1. b\n* c".into(),
+                "* a\n  1. b\n* c".into(),
                 State {
                     newlines_before_start: 1,
                     ..Default::default()

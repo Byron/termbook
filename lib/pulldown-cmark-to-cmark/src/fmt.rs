@@ -15,6 +15,7 @@ pub struct State<'a> {
 pub struct Options {
     pub newlines_after_headline: usize,
     pub newlines_after_paragraph: usize,
+    pub newlines_after_codeblock: usize,
     pub newlines_after_rest: usize,
 }
 
@@ -23,6 +24,7 @@ impl Default for Options {
         Options {
             newlines_after_headline: 2,
             newlines_after_paragraph: 2,
+            newlines_after_codeblock: 2,
             newlines_after_rest: 1,
         }
     }
@@ -83,9 +85,10 @@ where
             End(ref tag) => match *tag {
                 Header(_) => state.newlines_before_start += options.newlines_after_headline,
                 Paragraph => state.newlines_before_start += options.newlines_after_paragraph,
-                Table(_) | TableRow | TableHead | Rule | CodeBlock(_) | Item => {
+                CodeBlock(_) => state.newlines_before_start += options.newlines_after_codeblock,
+                Table(_) | TableRow | TableHead | Rule | Item => {
                     if state.newlines_before_start < options.newlines_after_rest {
-                        state.newlines_before_start += options.newlines_after_rest
+                        state.newlines_before_start = options.newlines_after_rest
                     }
                 }
                 List(_) => {

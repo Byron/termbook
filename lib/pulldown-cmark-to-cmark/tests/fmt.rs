@@ -4,19 +4,19 @@ extern crate pulldown_cmark_to_cmark;
 use pulldown_cmark_to_cmark::fmt::{cmark, State};
 use pulldown_cmark::{Event, Options, Parser, Tag};
 
-fn fmts(s: &str) -> (String, State) {
+fn fmts(s: &str) -> (String, State<'static>) {
     let mut buf = String::new();
     let s = cmark(Parser::new_ext(s, Options::all()), &mut buf, None).unwrap();
     (buf, s)
 }
 
-fn fmtes(e: &[Event], s: State) -> (String, State) {
+fn fmtes(e: &[Event], s: State<'static>) -> (String, State<'static>) {
     let mut buf = String::new();
     let s = cmark(e.iter(), &mut buf, Some(s)).unwrap();
     (buf, s)
 }
 
-fn fmte(e: &[Event]) -> (String, State) {
+fn fmte(e: &[Event]) -> (String, State<'static>) {
     let mut buf = String::new();
     let s = cmark(e.iter(), &mut buf, None).unwrap();
     (buf, s)
@@ -140,9 +140,48 @@ mod list {
                 "".into(),
                 State {
                     list_stack: vec![None, Some(42)],
+                    padding: vec!["    ".into()],
                     ..Default::default()
                 }
             )
+        )
+    }
+
+    #[test]
+    fn all_but_the_first_list_end_pop_the_padding() {
+        assert_eq!(
+            fmtes(
+                &[
+                    Event::End(Tag::List(None)),
+                    Event::End(Tag::List(Some(444))),
+                    Event::End(Tag::List(None))
+                ],
+                State {
+                    list_stack: vec![None, Some(444), None],
+                    padding: vec!["foo".into(), String::from("bar").into(), "baz".into()],
+                    ..Default::default()
+                }
+            ).1,
+            State {
+                padding: vec!["foo".into()],
+                ..Default::default()
+            }
+        )
+    }
+
+    #[test]
+    fn all_but_the_first_list_append_to_the_padding() {
+        assert_eq!(
+            fmte(&[
+                Event::Start(Tag::List(None)),
+                Event::Start(Tag::List(Some(444))),
+                Event::Start(Tag::List(None))
+            ]).1,
+            State {
+                list_stack: vec![None, Some(444), None],
+                padding: vec![String::from("     ").into(), "  ".into()],
+                ..Default::default()
+            }
         )
     }
 
@@ -155,14 +194,11 @@ mod list {
                     list_stack: vec![None, None],
                     ..Default::default()
                 }
-            ),
-            (
-                "".into(),
-                State {
-                    list_stack: vec![None],
-                    ..Default::default()
-                }
-            )
+            ).1,
+            State {
+                list_stack: vec![None],
+                ..Default::default()
+            }
         )
     }
 

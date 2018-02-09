@@ -1,12 +1,14 @@
 use std::fmt;
 use std::borrow::Borrow;
+use std::borrow::Cow;
 use pulldown_cmark::Event;
 use display;
 
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
-pub struct State {
+pub struct State<'a> {
     pub newlines_before_start: usize,
     pub list_stack: Vec<Option<usize>>,
+    pub padding: Vec<Cow<'a, str>>,
 }
 
 #[derive(Clone, Debug)]
@@ -29,9 +31,9 @@ impl Default for Options {
 pub fn cmark_with_options<'a, I, E, F>(
     events: I,
     mut f: F,
-    state: Option<State>,
+    state: Option<State<'static>>,
     options: Options,
-) -> Result<State, fmt::Error>
+) -> Result<State<'static>, fmt::Error>
 where
     I: Iterator<Item = E>,
     E: Borrow<Event<'a>>,
@@ -44,7 +46,19 @@ where
         match *event.borrow() {
             ref e @ Html(_) | ref e @ Start(_) => {
                 match *e {
-                    Start(List(ref list_type)) => state.list_stack.push(list_type.clone()),
+                    Start(List(ref list_type)) => {
+                        state.list_stack.push(list_type.clone());
+                        if state.list_stack.len() > 1 {
+                            state.padding.push(match *list_type {
+                                None => "  ".into(),
+                                Some(n) => format!("{}. ", n)
+                                    .chars()
+                                    .map(|_| ' ')
+                                    .collect::<String>()
+                                    .into(),
+                            });
+                        }
+                    }
                     _ => {}
                 }
                 while state.newlines_before_start != 0 {
@@ -60,6 +74,9 @@ where
                 }
                 List(_) => {
                     state.list_stack.pop();
+                    if !state.list_stack.is_empty() {
+                        state.padding.pop();
+                    }
                 }
                 BlockQuote
                 | Strong
@@ -73,12 +90,10 @@ where
             _ => {}
         }
         match *event.borrow() {
-            Event::Start(Item) => {
-                match state.list_stack.last() {
-                    Some(&Some(n)) => write!(f, "{}", display::Item(display::ItemType::Ordered(n))),
-                    Some(&None) => write!(f, "{}", display::Item(display::ItemType::Unordered)),
-                    None => Ok(()),
-                }
+            Event::Start(Item) => match state.list_stack.last() {
+                Some(&Some(n)) => write!(f, "{}", display::Item(display::ItemType::Ordered(n))),
+                Some(&None) => write!(f, "{}", display::Item(display::ItemType::Unordered)),
+                None => Ok(()),
             },
             _ => write!(f, "{}", display::Event(event.borrow())),
         }?;
@@ -86,7 +101,11 @@ where
     Ok(state)
 }
 
-pub fn cmark<'a, I, E, F>(events: I, f: F, state: Option<State>) -> Result<State, fmt::Error>
+pub fn cmark<'a, I, E, F>(
+    events: I,
+    f: F,
+    state: Option<State<'static>>,
+) -> Result<State<'static>, fmt::Error>
 where
     I: Iterator<Item = E>,
     E: Borrow<Event<'a>>,

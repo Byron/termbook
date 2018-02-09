@@ -40,6 +40,16 @@ where
     F: fmt::Write,
 {
     let mut state = state.unwrap_or_default();
+    fn with_padding<F>(f: &mut F, p: &[Cow<'static, str>]) -> fmt::Result
+    where
+        F: fmt::Write,
+    {
+        for padding in p {
+            write!(f, "{}", padding)?;
+        }
+        Ok(())
+    }
+
     fn write_padding_if_needed<'a, F>(
         f: &mut F,
         e: &Event<'a>,
@@ -52,9 +62,7 @@ where
         write!(tf, "{}", display::Event(e)).ok();
 
         if tf.0 {
-            for prefix in p {
-                write!(f, "{}", prefix)?;
-            }
+            with_padding(f, p)?;
         }
         Ok(())
     }
@@ -81,6 +89,7 @@ where
                     _ => {}
                 }
                 while state.newlines_before_start != 0 {
+                    with_padding(&mut f, &state.padding)?;
                     f.write_char('\n')?;
                     state.newlines_before_start -= 1;
                 }
@@ -110,8 +119,14 @@ where
         }
         match *event.borrow() {
             Event::Start(Item) => match state.list_stack.last() {
-                Some(&Some(n)) => write!(f, "{}", display::Item(display::ItemType::Ordered(n))),
-                Some(&None) => write!(f, "{}", display::Item(display::ItemType::Unordered)),
+                Some(inner) => with_padding(&mut f, &state.padding).and(write!(
+                    f,
+                    "{}",
+                    match inner {
+                        &Some(n) => display::Item(display::ItemType::Ordered(n)),
+                        &None => display::Item(display::ItemType::Unordered),
+                    }
+                )),
                 None => Ok(()),
             },
             _ => write_padding_if_needed(&mut f, event.borrow(), &state.padding).and(write!(

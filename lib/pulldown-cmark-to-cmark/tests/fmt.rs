@@ -130,6 +130,27 @@ mod padding {
     use super::{fmtes, Event, State, Tag};
 
     #[test]
+    fn is_used_before_newlines() {
+        assert_eq!(
+            fmtes(
+                &[Event::Start(Tag::Paragraph), Event::Text("h".into())],
+                State {
+                    newlines_before_start: 2,
+                    padding: vec!["  ".into()],
+                    ..Default::default()
+                }
+            ),
+            (
+                "  \n  \n  h".into(),
+                State {
+                    newlines_before_start: 0,
+                    padding: vec!["  ".into()],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
     fn is_not_used_if_there_is_no_printable_item() {
         assert_eq!(
             fmtes(
@@ -144,6 +165,46 @@ mod padding {
                 State {
                     newlines_before_start: 1,
                     padding: vec!["  ".into(), " ".into()],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
+    fn is_used_for_unordered_list_items() {
+        assert_eq!(
+            fmtes(
+                &[Event::Start(Tag::List(None)), Event::Start(Tag::Item)],
+                State {
+                    padding: vec!["   ".into()],
+                    ..Default::default()
+                }
+            ),
+            (
+                "   * ".into(),
+                State {
+                    list_stack: vec![None],
+                    padding: vec!["   ".into()],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
+    fn is_used_for_ordered_list_items() {
+        assert_eq!(
+            fmtes(
+                &[Event::Start(Tag::List(Some(1))), Event::Start(Tag::Item)],
+                State {
+                    padding: vec!["   ".into()],
+                    ..Default::default()
+                }
+            ),
+            (
+                "   1. ".into(),
+                State {
+                    list_stack: vec![Some(1)],
+                    padding: vec!["   ".into()],
                     ..Default::default()
                 }
             )

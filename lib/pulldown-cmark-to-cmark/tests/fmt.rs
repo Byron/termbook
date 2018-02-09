@@ -10,20 +10,20 @@ fn fmts(s: &str) -> (String, State) {
     (buf, s)
 }
 
-fn fmtss(s: &str, state: State) -> (String, State) {
-    let mut buf = String::new();
-    let s = cmark(Parser::new_ext(s, Options::all()), &mut buf, Some(state)).unwrap();
-    (buf, s)
-}
-
 fn fmtes(e: &[Event], s: State) -> (String, State) {
     let mut buf = String::new();
     let s = cmark(e.iter(), &mut buf, Some(s)).unwrap();
     (buf, s)
 }
 
+fn fmte(e: &[Event]) -> (String, State) {
+    let mut buf = String::new();
+    let s = cmark(e.iter(), &mut buf, None).unwrap();
+    (buf, s)
+}
+
 mod lazy_newlines {
-    use super::{fmtes, fmts};
+    use super::{fmte, fmts};
     use super::{Event, State, Tag};
 
     #[test]
@@ -40,7 +40,7 @@ mod lazy_newlines {
             Tag::FootnoteDefinition("".into()),
         ] {
             assert_eq!(
-                fmtes(&[Event::End(t.clone())], State::default()).1,
+                fmte(&[Event::End(t.clone())]).1,
                 State {
                     newlines_before_start: 0,
                     ..Default::default()
@@ -60,7 +60,7 @@ mod lazy_newlines {
             Event::End(Tag::Table(vec![])),
         ] {
             assert_eq!(
-                fmtes(&[e.clone()], State::default()).1,
+                fmte(&[e.clone()]).1,
                 State {
                     newlines_before_start: 1,
                     ..Default::default()
@@ -124,4 +124,73 @@ fn it_applies_newlines_before_start_before_any_start_tag() {
             }
         )
     )
+}
+
+mod list {
+    use super::{fmte, fmtes, fmts, Event, State, Tag};
+
+    #[test]
+    fn it_pushes_one_item_to_the_lists_stack_for_each_start_list() {
+        assert_eq!(
+            fmte(&[
+                Event::Start(Tag::List(None)),
+                Event::Start(Tag::List(Some(42)))
+            ],),
+            (
+                "".into(),
+                State {
+                    list_stack: vec![None, Some(42)],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn it_pops_one_item_from_the_lists_stack_for_each_end_list() {
+        assert_eq!(
+            fmtes(
+                &[Event::End(Tag::List(None))],
+                State {
+                    list_stack: vec![None, None],
+                    ..Default::default()
+                }
+            ),
+            (
+                "".into(),
+                State {
+                    list_stack: vec![None],
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn unordered() {
+        assert_eq!(
+            fmts("* a\n* b"),
+            (
+                "* a\n* b".into(),
+                State {
+                    newlines_before_start: 1,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+
+    #[test]
+    fn ordered() {
+        assert_eq!(
+            fmts("2. a\n2. b"),
+            (
+                "2. a\n2. b".into(),
+                State {
+                    newlines_before_start: 1,
+                    ..Default::default()
+                }
+            )
+        )
+    }
 }

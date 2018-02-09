@@ -6,6 +6,7 @@ use display;
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub struct State {
     pub newlines_before_start: usize,
+    pub list_stack: Vec<Option<usize>>,
 }
 
 #[derive(Clone, Debug)]
@@ -41,7 +42,11 @@ where
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
         match *event.borrow() {
-            Html(_)|Start(_) => {
+            ref e @ Html(_) | ref e @ Start(_) => {
+                match *e {
+                    Start(List(ref list_type)) => state.list_stack.push(list_type.clone()),
+                    _ => {}
+                }
                 while state.newlines_before_start != 0 {
                     f.write_char('\n')?;
                     state.newlines_before_start -= 1;
@@ -50,9 +55,13 @@ where
             End(ref tag) => match *tag {
                 Header(_) => state.newlines_before_start += options.newlines_after_headline,
                 Paragraph => state.newlines_before_start += options.newlines_after_paragraph,
-                Table(_)|TableRow|TableHead|Rule|CodeBlock(_)|Item => state.newlines_before_start += options.newlines_after_rest,
+                Table(_) | TableRow | TableHead | Rule | CodeBlock(_) | Item => {
+                    state.newlines_before_start += options.newlines_after_rest
+                }
+                List(_) => {
+                    state.list_stack.pop();
+                }
                 BlockQuote
-                | List(_)
                 | Strong
                 | Emphasis
                 | Code
@@ -63,7 +72,16 @@ where
             },
             _ => {}
         }
-        write!(f, "{}", display::Event(event.borrow()))?;
+        match *event.borrow() {
+            Event::Start(Item) => {
+                match state.list_stack.last() {
+                    Some(&Some(n)) => write!(f, "{}", display::Item(display::ItemType::Ordered(n))),
+                    Some(&None) => write!(f, "{}", display::Item(display::ItemType::Unordered)),
+                    None => Ok(()),
+                }
+            },
+            _ => write!(f, "{}", display::Event(event.borrow())),
+        }?;
     }
     Ok(state)
 }

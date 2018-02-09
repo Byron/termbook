@@ -11,12 +11,16 @@ pub struct State {
 #[derive(Clone, Debug)]
 pub struct Options {
     pub newlines_after_headline: usize,
+    pub newlines_after_paragraph: usize,
+    pub newlines_after_rest: usize,
 }
 
 impl Default for Options {
     fn default() -> Self {
         Options {
             newlines_after_headline: 2,
+            newlines_after_paragraph: 2,
+            newlines_after_rest: 1,
         }
     }
 }
@@ -37,13 +41,25 @@ where
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
         match *event.borrow() {
-            Start(_) => while state.newlines_before_start != 0 {
-                f.write_char('\n')?;
-                state.newlines_before_start -= 1;
-            },
+            Html(_)|Start(_) => {
+                while state.newlines_before_start != 0 {
+                    f.write_char('\n')?;
+                    state.newlines_before_start -= 1;
+                }
+            }
             End(ref tag) => match *tag {
                 Header(_) => state.newlines_before_start += options.newlines_after_headline,
-                _ => {}
+                Paragraph => state.newlines_before_start += options.newlines_after_paragraph,
+                Table(_)|TableRow|TableHead|Rule|CodeBlock(_)|Item => state.newlines_before_start += options.newlines_after_rest,
+                BlockQuote
+                | List(_)
+                | Strong
+                | Emphasis
+                | Code
+                | Image(_, _)
+                | Link(_, _)
+                | TableCell
+                | FootnoteDefinition(_) => {}
             },
             _ => {}
         }

@@ -36,7 +36,7 @@ mod start {
     }
     #[test]
     fn codeblock() {
-        assert_eq!(s(Start(CodeBlock("asdf".into()))), "```asdf")
+        assert_eq!(s(Start(CodeBlock("asdf".into()))), "```asdf\n")
     }
     #[test]
     fn list_unordered() {
@@ -223,11 +223,11 @@ mod end {
 
 #[test]
 fn hardbreak() {
-    assert_eq!(s(Event::HardBreak), "")
+    assert_eq!(s(Event::HardBreak), "  \n")
 }
 #[test]
 fn softbreak() {
-    assert_eq!(s(Event::SoftBreak), "")
+    assert_eq!(s(Event::SoftBreak), "\n")
 }
 #[test]
 fn html() {

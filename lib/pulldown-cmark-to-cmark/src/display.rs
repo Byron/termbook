@@ -11,8 +11,8 @@ impl<'a> Display for Event<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use pulldown_cmark::Tag::*;
         match *self.0 {
-            PDEvent::HardBreak => Ok(()),
-            PDEvent::SoftBreak => Ok(()),
+            PDEvent::HardBreak => "  \n".fmt(f),
+            PDEvent::SoftBreak => '\n'.fmt(f),
             PDEvent::Text(ref name) => name.fmt(f),
             PDEvent::InlineHtml(ref name) => name.fmt(f),
             PDEvent::Html(ref name) => name.fmt(f),
@@ -61,7 +61,7 @@ impl<'a> Display for Event<'a> {
                     ' '.fmt(f)
                 }
                 BlockQuote => Ok(()),
-                CodeBlock(ref info) => "```".fmt(f).and(info.fmt(f)),
+                CodeBlock(ref info) => "```".fmt(f).and(info.fmt(f)).and('\n'.fmt(f)),
                 List(_) => Ok(()),
                 Item => Ok(()),
             },

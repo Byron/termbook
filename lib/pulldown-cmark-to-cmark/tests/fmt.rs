@@ -141,89 +141,10 @@ mod padding {
                 }
             ),
             (
-                "  \n  \n  h".into(),
+                "\n  \n  h".into(),
                 State {
                     newlines_before_start: 0,
                     padding: vec!["  ".into()],
-                    ..Default::default()
-                }
-            )
-        )
-    }
-    #[test]
-    fn is_not_used_if_there_is_no_printable_item() {
-        assert_eq!(
-            fmtes(
-                &[Event::End(Tag::Item)],
-                State {
-                    padding: vec!["  ".into(), " ".into()],
-                    ..Default::default()
-                }
-            ),
-            (
-                "".into(),
-                State {
-                    newlines_before_start: 1,
-                    padding: vec!["  ".into(), " ".into()],
-                    ..Default::default()
-                }
-            )
-        )
-    }
-    #[test]
-    fn is_used_for_unordered_list_items() {
-        assert_eq!(
-            fmtes(
-                &[Event::Start(Tag::List(None)), Event::Start(Tag::Item)],
-                State {
-                    padding: vec!["   ".into()],
-                    ..Default::default()
-                }
-            ),
-            (
-                "   * ".into(),
-                State {
-                    list_stack: vec![None],
-                    padding: vec!["   ".into()],
-                    ..Default::default()
-                }
-            )
-        )
-    }
-    #[test]
-    fn is_used_for_ordered_list_items() {
-        assert_eq!(
-            fmtes(
-                &[Event::Start(Tag::List(Some(1))), Event::Start(Tag::Item)],
-                State {
-                    padding: vec!["   ".into()],
-                    ..Default::default()
-                }
-            ),
-            (
-                "   1. ".into(),
-                State {
-                    list_stack: vec![Some(1)],
-                    padding: vec!["   ".into()],
-                    ..Default::default()
-                }
-            )
-        )
-    }
-    #[test]
-    fn is_used_if_there_is_a_printable_item() {
-        assert_eq!(
-            fmtes(
-                &[Event::Text("h".into()),],
-                State {
-                    padding: vec!["  ".into(), " ".into()],
-                    ..Default::default()
-                }
-            ),
-            (
-                "   h".into(),
-                State {
-                    padding: vec!["  ".into(), " ".into()],
                     ..Default::default()
                 }
             )
@@ -243,7 +164,7 @@ mod list {
             ]).1,
             State {
                 list_stack: vec![None, Some(42)],
-                padding: vec!["    ".into()],
+                padding: vec!["  ".into()],
                 ..Default::default()
             }
         )
@@ -281,7 +202,7 @@ mod list {
             ]).1,
             State {
                 list_stack: vec![None, Some(444), None],
-                padding: vec![String::from("     ").into(), "  ".into()],
+                padding: vec![String::from("  ").into(), "     ".into()],
                 ..Default::default()
             }
         )
@@ -301,6 +222,20 @@ mod list {
                 list_stack: vec![None],
                 ..Default::default()
             }
+        )
+    }
+
+    #[test]
+    fn ordered_and_unordered() {
+        assert_eq!(
+            fmts("1. *b*\n   * *b*"),
+            (
+                "1. *b*\n   * *b*".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
         )
     }
 

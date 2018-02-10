@@ -244,9 +244,9 @@ mod blockquote {
     #[test]
     fn simple() {
         assert_eq!(
-            fmts(" > a\n > b"),
+            fmts(" > a\n > b  \n > c"),
             (
-                " > a\n > b".into(),
+                " > a\n > b  \n > c".into(),
                 State {
                     newlines_before_start: 2,
                     ..Default::default()

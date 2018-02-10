@@ -116,7 +116,7 @@ where
                         }
                         f.write_char(' ')
                     }
-                    BlockQuote => Ok(()),
+                    BlockQuote => with_padding(&mut f, &state.padding),
                     CodeBlock(ref info) => f.write_str("```")
                         .and(f.write_str(info))
                         .and(f.write_char('\n')),
@@ -166,8 +166,8 @@ where
                 }
                 FootnoteDefinition(_) => Ok(()),
             },
-            HardBreak => f.write_str("  \n"),
-            SoftBreak => f.write_char('\n'),
+            HardBreak => f.write_str("  \n").and(with_padding(&mut f, &state.padding)),
+            SoftBreak => f.write_char('\n').and(with_padding(&mut f, &state.padding)),
             Text(ref name) => f.write_str(name),
             InlineHtml(ref name) => f.write_str(name),
             FootnoteReference(ref name) => write!(f, "[^{}]", name),

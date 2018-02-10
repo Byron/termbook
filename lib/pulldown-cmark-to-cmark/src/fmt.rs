@@ -2,7 +2,6 @@ use std::fmt;
 use std::borrow::Borrow;
 use std::borrow::Cow;
 use pulldown_cmark::Event;
-use display;
 
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub struct State<'a> {
@@ -62,15 +61,19 @@ where
         }
         Ok(())
     }
-    
+
     for event in events {
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
         match *event.borrow() {
-            ref e @ Html(_) | ref e @ Start(_) => {
-                match *e {
-                    Start(BlockQuote) => state.padding.push(" > ".into()),
-                    Start(List(ref list_type)) => {
+            Html(ref text) => {
+                consume_newlines(&mut f, &mut state)?;
+                f.write_str(text)
+            }
+            Start(ref tag) => {
+                match *tag {
+                    BlockQuote => state.padding.push(" > ".into()),
+                    List(ref list_type) => {
                         state.list_stack.push(list_type.clone());
                         if state.list_stack.len() > 1 {
                             state.padding.push(
@@ -89,49 +92,86 @@ where
                     _ => {}
                 }
                 consume_newlines(&mut f, &mut state)?;
+                match *tag {
+                    Item => match state.list_stack.last() {
+                        Some(&Some(n)) => write!(f, "{}. ", n),
+                        Some(&None) => f.write_str("* "),
+                        None => Ok(()),
+                    },
+                    Table(_) => Ok(()),
+                    TableHead => Ok(()),
+                    TableRow => Ok(()),
+                    TableCell => f.write_char('|'),
+                    Link(_, _) => f.write_char('['),
+                    Image(_, _) => f.write_str("!["),
+                    Emphasis => f.write_char('*'),
+                    Strong => f.write_str("**"),
+                    Code => f.write_char('`'),
+                    FootnoteDefinition(ref name) => write!(f, "[^{}]: ", name),
+                    Paragraph => Ok(()),
+                    Rule => f.write_str("---"),
+                    Header(n) => {
+                        for _ in 0..n {
+                            f.write_char('#')?;
+                        }
+                        f.write_char(' ')
+                    }
+                    BlockQuote => Ok(()),
+                    CodeBlock(ref info) => f.write_str("```")
+                        .and(f.write_str(info))
+                        .and(f.write_char('\n')),
+                    List(_) => Ok(()),
+                }
             }
             End(ref tag) => match *tag {
-                Header(_) => state.newlines_before_start += options.newlines_after_headline,
-                Paragraph => state.newlines_before_start += options.newlines_after_paragraph,
-                CodeBlock(_) => state.newlines_before_start += options.newlines_after_codeblock,
+                Image(ref uri, ref title) | Link(ref uri, ref title) => {
+                    if title.is_empty() {
+                        write!(f, "]({})", uri)
+                    } else {
+                        write!(f, "]({uri} \"{title}\")", uri = uri, title = title)
+                    }
+                }
+                Code => f.write_char('`'),
+                TableCell => f.write_char('|'),
+                Emphasis => f.write_char('*'),
+                Strong => f.write_str("**"),
+                Header(_) => {
+                    state.newlines_before_start += options.newlines_after_headline;
+                    Ok(())
+                }
+                Paragraph => {
+                    state.newlines_before_start += options.newlines_after_paragraph;
+                    Ok(())
+                }
+                CodeBlock(_) => {
+                    state.newlines_before_start += options.newlines_after_codeblock;
+                    f.write_str("```")
+                }
                 Table(_) | TableRow | TableHead | Rule | Item => {
                     if state.newlines_before_start < options.newlines_after_rest {
-                        state.newlines_before_start = options.newlines_after_rest
+                        state.newlines_before_start = options.newlines_after_rest;
                     }
+                    Ok(())
                 }
                 List(_) => {
                     state.list_stack.pop();
                     if !state.list_stack.is_empty() {
                         state.padding.pop();
                     }
+                    Ok(())
                 }
                 BlockQuote => {
                     state.padding.pop();
+                    Ok(())
                 }
-                Strong
-                | Emphasis
-                | Code
-                | Image(_, _)
-                | Link(_, _)
-                | TableCell
-                | FootnoteDefinition(_) => {}
+                FootnoteDefinition(_) => Ok(()),
             },
-            _ => {}
-        }
-        match *event.borrow() {
-            Event::Start(Item) => match state.list_stack.last() {
-                Some(inner) => write!(
-                    f,
-                    "{}",
-                    match inner {
-                        &Some(n) => display::Item(display::ItemType::Ordered(n)),
-                        &None => display::Item(display::ItemType::Unordered),
-                    }
-                ),
-                None => Ok(()),
-            },
-            _ => write!(f, "{}", display::Event(event.borrow())),
-        }?;
+            HardBreak => f.write_str("  \n"),
+            SoftBreak => f.write_char('\n'),
+            Text(ref name) => f.write_str(name),
+            InlineHtml(ref name) => f.write_str(name),
+            FootnoteReference(ref name) => write!(f, "[^{}]", name),
+        }?
     }
     Ok(state)
 }

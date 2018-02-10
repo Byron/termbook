@@ -14,3 +14,4 @@ cache:
 script:
   - cargo doc
   - cargo test --all
+  - cd lib/pulldown-cmark-to-cmark && ./tests/cat.sh

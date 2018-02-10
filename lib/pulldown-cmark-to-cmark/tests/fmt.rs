@@ -105,7 +105,7 @@ fn it_applies_newlines_before_start_before_text() {
 }
 
 #[test]
-fn it_applies_newlines_before_start_before_html() {
+fn it_applies_newlines_before_start_before_html_and_enforces_newline_after() {
     assert_eq!(
         fmtes(
             &[Event::Html("<e>".into())],
@@ -117,7 +117,7 @@ fn it_applies_newlines_before_start_before_html() {
         (
             "\n\n<e>".into(),
             State {
-                newlines_before_start: 0,
+                newlines_before_start: 1,
                 ..Default::default()
             }
         )
@@ -421,10 +421,7 @@ mod list {
 
     #[test]
     fn unordered_ordered_unordered() {
-        assert_eq!(
-            fmts("* a\n  1. b\n* c").0,
-            "* a\n  1. b\n* c",
-        )
+        assert_eq!(fmts("* a\n  1. b\n* c").0, "* a\n  1. b\n* c",)
     }
 
     #[test]

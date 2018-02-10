@@ -15,6 +15,7 @@ pub struct Options {
     pub newlines_after_headline: usize,
     pub newlines_after_paragraph: usize,
     pub newlines_after_codeblock: usize,
+    pub newlines_after_html: usize,
     pub newlines_after_rule: usize,
     pub newlines_after_list: usize,
     pub newlines_after_rest: usize,
@@ -26,6 +27,7 @@ impl Default for Options {
             newlines_after_headline: 2,
             newlines_after_paragraph: 2,
             newlines_after_codeblock: 2,
+            newlines_after_html: 1,
             newlines_after_rule: 2,
             newlines_after_list: 2,
             newlines_after_rest: 1,
@@ -120,9 +122,10 @@ where
                         Some(inner) => {
                             state.padding.push(padding_of(*inner));
                             match inner {
-                            &Some(n) => write!(f, "{}. ", n),
-                            &None => f.write_str("* "),
-                        }},
+                                &Some(n) => write!(f, "{}. ", n),
+                                &None => f.write_str("* "),
+                            }
+                        }
                         None => Ok(()),
                     },
                     Table(_) => Ok(()),
@@ -202,7 +205,9 @@ where
                 }
                 List(_) => {
                     state.list_stack.pop();
-                    if state.list_stack.len() == 0 && state.newlines_before_start < options.newlines_after_list {
+                    if state.list_stack.len() == 0
+                        && state.newlines_before_start < options.newlines_after_list
+                    {
                         state.newlines_before_start = options.newlines_after_list;
                     }
                     Ok(())
@@ -215,9 +220,18 @@ where
             },
             HardBreak => f.write_str("  \n").and(padding(&mut f, &state.padding)),
             SoftBreak => f.write_char('\n').and(padding(&mut f, &state.padding)),
-            Html(ref text) | Text(ref text) => {
+            Text(ref text) => {
                 consume_newlines(&mut f, &mut state)?;
                 print_text(text, &mut f, &state.padding)
+            }
+            Html(ref text) => {
+                consume_newlines(&mut f, &mut state)?;
+                print_text(text, &mut f, &state.padding)?;
+
+                if state.newlines_before_start < options.newlines_after_html {
+                    state.newlines_before_start = options.newlines_after_html;
+                }
+                Ok(())
             }
             InlineHtml(ref name) => f.write_str(name),
             FootnoteReference(ref name) => write!(f, "[^{}]", name),

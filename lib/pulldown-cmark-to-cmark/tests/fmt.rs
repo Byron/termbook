@@ -53,7 +53,6 @@ mod lazy_newlines {
     fn after_anything_else_it_has_one_newline() {
         for e in &[
             Event::End(Tag::Item),
-            Event::End(Tag::Rule),
             Event::End(Tag::TableRow),
             Event::End(Tag::TableHead),
             Event::End(Tag::Table(vec![])),
@@ -70,7 +69,7 @@ mod lazy_newlines {
 
     #[test]
     fn after_some_types_it_has_multiple_newlines() {
-        for md in &["paragraph", "## headline", "```\n```"] {
+        for md in &["paragraph", "## headline", "```\n```", "---"] {
             assert_eq!(
                 fmts(md),
                 (
@@ -374,29 +373,6 @@ mod codeblock {
 
 mod list {
     use super::{fmtes, fmts, Event, State, Tag};
-
-    #[test]
-    fn all_but_the_first_list_end_pop_the_padding() {
-        assert_eq!(
-            fmtes(
-                &[
-                    Event::End(Tag::List(None)),
-                    Event::End(Tag::List(Some(444))),
-                    Event::End(Tag::List(None))
-                ],
-                State {
-                    list_stack: vec![None, Some(444), None],
-                    padding: vec!["foo".into(), String::from("bar").into(), "baz".into()],
-                    ..Default::default()
-                }
-            ).1,
-            State {
-                padding: vec!["foo".into()],
-                newlines_before_start: 2,
-                ..Default::default()
-            }
-        )
-    }
 
     #[test]
     fn it_pops_one_item_from_the_lists_stack_for_each_end_list() {

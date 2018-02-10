@@ -58,21 +58,19 @@ Unordered lists:
 Ordered lists:
 
 1. Lorem impsum
-   
    1. Nested
    1. Inline
    1. Text
 1. dolor sit amet
-   
    1. Nested
    
    1. With
-
-Paragraphs and nested blocks:
- > 
- > A quote
-
-And some text at the end
+      
+      Paragraphs and nested blocks:
+       > 
+       > A quote
+      
+      And some text at the end
 
 1. consetetur sadipscing elitr
 
@@ -85,7 +83,7 @@ And a mix of both:
      * Some
      * Nested
      * Bullets
-1. Text
+  1. Text
 * dolor sit amet
 
 ## Block level elements
@@ -103,6 +101,7 @@ Block quotes
 Before we continue, have a ruler:
 
 ---
+
 Code blocks without syntax highlighting:
 
 ```
@@ -148,6 +147,7 @@ vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
 no sea takimata sanctus est Lorem ipsum dolor sit amet.
 </p>
 </div>
+
 Or inline HTML, as in this paragraph: Lorem ipsum dolor sit amet, consetetur
 sadipscing elitr, sed <abbr>diam</abbr> nonumy eirmod tempor invidunt ut labore
 et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et

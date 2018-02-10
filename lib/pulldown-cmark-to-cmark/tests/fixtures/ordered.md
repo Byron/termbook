@@ -8,10 +8,10 @@ Ordered lists:
     1. Nested
 
     2. With
+       
+       Paragraphs and nested blocks:
 
-      Paragraphs and nested blocks:
-
-      > A quote
+       > A quote
 
       And some text at the end
 3. consetetur sadipscing elitr

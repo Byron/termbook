@@ -15,6 +15,7 @@ pub struct Options {
     pub newlines_after_headline: usize,
     pub newlines_after_paragraph: usize,
     pub newlines_after_codeblock: usize,
+    pub newlines_after_rule: usize,
     pub newlines_after_list: usize,
     pub newlines_after_rest: usize,
 }
@@ -25,6 +26,7 @@ impl Default for Options {
             newlines_after_headline: 2,
             newlines_after_paragraph: 2,
             newlines_after_codeblock: 2,
+            newlines_after_rule: 2,
             newlines_after_list: 2,
             newlines_after_rest: 1,
         }
@@ -183,7 +185,13 @@ where
                     }
                     f.write_str("```")
                 }
-                ref t @ Table(_) | ref t @ TableRow | ref t @ TableHead | ref t @ Rule | ref t @ Item => {
+                Rule => {
+                    if state.newlines_before_start < options.newlines_after_rule {
+                        state.newlines_before_start += options.newlines_after_rule;
+                    }
+                    Ok(())
+                }
+                ref t @ Table(_) | ref t @ TableRow | ref t @ TableHead | ref t @ Item => {
                     if let &Item = t {
                         state.padding.pop();
                     }
@@ -196,9 +204,6 @@ where
                     state.list_stack.pop();
                     if state.list_stack.len() == 0 && state.newlines_before_start < options.newlines_after_list {
                         state.newlines_before_start = options.newlines_after_list;
-                    }
-                    if !state.list_stack.is_empty() {
-                        state.padding.pop();
                     }
                     Ok(())
                 }

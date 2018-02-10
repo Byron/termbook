@@ -1,13 +1,34 @@
 use std::fmt;
 use std::borrow::Borrow;
 use std::borrow::Cow;
-use pulldown_cmark::Event;
+use pulldown_cmark::{Alignment as TableAlignment, Event};
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Alignment {
+    None,
+    Left,
+    Center,
+    Right,
+}
+
+impl<'a> From<&'a TableAlignment> for Alignment {
+    fn from(s: &'a TableAlignment) -> Self {
+        match *s {
+            TableAlignment::None => Alignment::None,
+            TableAlignment::Left => Alignment::Left,
+            TableAlignment::Center => Alignment::Center,
+            TableAlignment::Right => Alignment::Right,
+        }
+    }
+}
 
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub struct State<'a> {
     pub newlines_before_start: usize,
     pub list_stack: Vec<Option<usize>>,
     pub padding: Vec<Cow<'a, str>>,
+    pub table_alignments: Vec<Alignment>,
+    pub table_headers: Vec<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -15,6 +36,7 @@ pub struct Options {
     pub newlines_after_headline: usize,
     pub newlines_after_paragraph: usize,
     pub newlines_after_codeblock: usize,
+    pub newlines_after_table: usize,
     pub newlines_after_html: usize,
     pub newlines_after_rule: usize,
     pub newlines_after_list: usize,
@@ -27,6 +49,7 @@ impl Default for Options {
             newlines_after_headline: 2,
             newlines_after_paragraph: 2,
             newlines_after_codeblock: 2,
+            newlines_after_table: 2,
             newlines_after_html: 1,
             newlines_after_rule: 2,
             newlines_after_list: 2,
@@ -109,7 +132,7 @@ where
                         state.list_stack.push(list_type.clone());
                         if state.list_stack.len() > 1 {
                             if state.newlines_before_start < options.newlines_after_rest {
-                                state.newlines_before_start += options.newlines_after_rest;
+                                state.newlines_before_start = options.newlines_after_rest;
                             }
                         }
                     }
@@ -128,7 +151,10 @@ where
                         }
                         None => Ok(()),
                     },
-                    Table(_) => Ok(()),
+                    Table(ref alignments) => {
+                        state.table_alignments = alignments.iter().map(From::from).collect();
+                        Ok(())
+                    }
                     TableHead => Ok(()),
                     TableRow => Ok(()),
                     TableCell => f.write_char('|'),
@@ -167,37 +193,76 @@ where
                     }
                 }
                 Code => f.write_char('`'),
-                TableCell => f.write_char('|'),
                 Emphasis => f.write_char('*'),
                 Strong => f.write_str("**"),
                 Header(_) => {
                     if state.newlines_before_start < options.newlines_after_headline {
-                        state.newlines_before_start += options.newlines_after_headline;
+                        state.newlines_before_start = options.newlines_after_headline;
                     }
                     Ok(())
                 }
                 Paragraph => {
                     if state.newlines_before_start < options.newlines_after_paragraph {
-                        state.newlines_before_start += options.newlines_after_paragraph;
+                        state.newlines_before_start = options.newlines_after_paragraph;
                     }
                     Ok(())
                 }
                 CodeBlock(_) => {
                     if state.newlines_before_start < options.newlines_after_codeblock {
-                        state.newlines_before_start += options.newlines_after_codeblock;
+                        state.newlines_before_start = options.newlines_after_codeblock;
                     }
                     f.write_str("```")
                 }
                 Rule => {
                     if state.newlines_before_start < options.newlines_after_rule {
-                        state.newlines_before_start += options.newlines_after_rule;
+                        state.newlines_before_start = options.newlines_after_rule;
                     }
                     Ok(())
                 }
-                ref t @ Table(_) | ref t @ TableRow | ref t @ TableHead | ref t @ Item => {
-                    if let &Item = t {
-                        state.padding.pop();
+                Table(_) => {
+                    if state.newlines_before_start < options.newlines_after_table {
+                        state.newlines_before_start = options.newlines_after_table;
                     }
+                    state.table_alignments.clear();
+                    state.table_headers.clear();
+                    Ok(())
+                }
+                TableCell => Ok(()),
+                ref t @ TableRow | ref t @ TableHead => {
+                    if state.newlines_before_start < options.newlines_after_rest {
+                        state.newlines_before_start = options.newlines_after_rest;
+                    }
+                    f.write_char('|')?;
+
+                    if let &TableHead = t {
+                        f.write_char('\n').and(padding(&mut f, &state.padding))?;
+                        for (alignment, name) in state
+                            .table_alignments
+                            .iter()
+                            .zip(state.table_headers.iter())
+                        {
+                            f.write_char('|')?;
+                            let last_minus_one = name.len() - 1;
+                            for c in 0..name.len() {
+                                f.write_char(if (c == 0
+                                    && (alignment == &Alignment::Center
+                                        || alignment == &Alignment::Left))
+                                    || (c == last_minus_one
+                                        && (alignment == &Alignment::Center
+                                            || alignment == &Alignment::Right))
+                                {
+                                    ':'
+                                } else {
+                                    '-'
+                                })?;
+                            }
+                        }
+                        f.write_char('|')?;
+                    }
+                    Ok(())
+                }
+                Item => {
+                    state.padding.pop();
                     if state.newlines_before_start < options.newlines_after_rest {
                         state.newlines_before_start = options.newlines_after_rest;
                     }
@@ -221,6 +286,9 @@ where
             HardBreak => f.write_str("  \n").and(padding(&mut f, &state.padding)),
             SoftBreak => f.write_char('\n').and(padding(&mut f, &state.padding)),
             Text(ref text) => {
+                if state.table_alignments.len() != state.table_headers.len() {
+                    state.table_headers.push(text.clone().into());
+                }
                 consume_newlines(&mut f, &mut state)?;
                 print_text(text, &mut f, &state.padding)
             }

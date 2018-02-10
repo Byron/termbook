@@ -4,7 +4,7 @@ extern crate pulldown_cmark;
 extern crate pulldown_cmark_to_cmark;
 
 use pulldown_cmark_to_cmark::fmt::{cmark, State};
-use pulldown_cmark::{Event, Options, Parser, Tag};
+use pulldown_cmark::{Alignment, Event, Options, Parser, Tag};
 
 fn fmts(s: &str) -> (String, State<'static>) {
     let mut buf = String::new();
@@ -55,7 +55,6 @@ mod lazy_newlines {
             Event::End(Tag::Item),
             Event::End(Tag::TableRow),
             Event::End(Tag::TableHead),
-            Event::End(Tag::Table(vec![])),
         ] {
             assert_eq!(
                 fmte(&[e.clone()]).1,
@@ -367,6 +366,50 @@ mod codeblock {
                     ..Default::default()
                 }
             )
+        )
+    }
+}
+
+mod table {
+    use super::{fmte, fmtes, Alignment as TableAlignment, Event, State, Tag};
+    use pulldown_cmark_to_cmark::fmt::Alignment;
+
+    #[test]
+    fn it_forget_alignments_and_headers_at_the_end_of_tables() {
+        assert_eq!(
+            fmtes(
+                &[Event::End(Tag::Table(vec![])),],
+                State {
+                    table_alignments: vec![Alignment::None, Alignment::Center],
+                    table_headers: vec!["a".into(), "b".into()],
+                    ..Default::default()
+                }
+            ).1,
+            State {
+                newlines_before_start: 2,
+                ..Default::default()
+            }
+        )
+    }
+    #[test]
+    fn it_keeps_track_of_alignments_and_headers() {
+        assert_eq!(
+            fmte(&[
+                Event::Start(Tag::Table(vec![
+                    TableAlignment::None,
+                    TableAlignment::Center,
+                ])),
+                Event::Start(Tag::TableHead),
+                Event::Start(Tag::TableCell),
+                Event::Text("a".into()),
+                Event::Start(Tag::TableCell),
+                Event::Text("b".into()),
+            ]).1,
+            State {
+                table_alignments: vec![Alignment::None, Alignment::Center],
+                table_headers: vec!["a".into(), "b".into()],
+                ..Default::default()
+            }
         )
     }
 }

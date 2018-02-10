@@ -189,16 +189,12 @@ mod end {
         )
     }
     #[test]
-    fn table_head() {
-        assert_eq!(s(End(TableHead)), "")
-    }
-    #[test]
     fn table_row() {
-        assert_eq!(s(End(TableRow)), "")
+        assert_eq!(s(End(TableRow)), "|")
     }
     #[test]
     fn table_cell() {
-        assert_eq!(s(End(TableCell)), "|")
+        assert_eq!(s(End(TableCell)), "")
     }
 }
 

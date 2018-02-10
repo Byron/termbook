@@ -42,7 +42,7 @@ where
     F: fmt::Write,
 {
     let mut state = state.unwrap_or_default();
-    fn with_padding<F>(f: &mut F, p: &[Cow<'static, str>]) -> fmt::Result
+    fn with_padding<'a, F>(f: &mut F, p: &[Cow<'a, str>]) -> fmt::Result
     where
         F: fmt::Write,
     {
@@ -51,7 +51,18 @@ where
         }
         Ok(())
     }
-
+    fn consume_newlines<F>(f: &mut F, s: &mut State) -> fmt::Result
+    where
+        F: fmt::Write,
+    {
+        while s.newlines_before_start != 0 {
+            f.write_char('\n')?;
+            with_padding(f, &s.padding)?;
+            s.newlines_before_start -= 1;
+        }
+        Ok(())
+    }
+    
     for event in events {
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
@@ -77,11 +88,7 @@ where
                     }
                     _ => {}
                 }
-                while state.newlines_before_start != 0 {
-                    f.write_char('\n')?;
-                    with_padding(&mut f, &state.padding)?;
-                    state.newlines_before_start -= 1;
-                }
+                consume_newlines(&mut f, &mut state)?;
             }
             End(ref tag) => match *tag {
                 Header(_) => state.newlines_before_start += options.newlines_after_headline,

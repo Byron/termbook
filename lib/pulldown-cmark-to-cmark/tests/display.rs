@@ -2,10 +2,12 @@ extern crate pulldown_cmark;
 extern crate pulldown_cmark_to_cmark;
 
 use pulldown_cmark::Event;
-use pulldown_cmark_to_cmark::display;
+use pulldown_cmark_to_cmark::{display, fmt};
 
 fn s(e: Event) -> String {
-    format!("{}", display::Event(&e))
+    let mut buf = String::new();
+    fmt::cmark([e].iter(), &mut buf, None).unwrap();
+    buf
 }
 
 mod start {

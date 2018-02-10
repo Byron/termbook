@@ -244,6 +244,26 @@ mod blockquote {
     }
 
     #[test]
+    fn with_codeblock() {
+        assert_eq!(
+            fmts(indoc!(
+                "
+             > ```a
+             > t1
+             > t2
+             > ```
+            "
+            )),
+            (
+                " > ```a\n > t1\n > t2\n > ```".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
+    #[test]
     fn nested() {
         assert_eq!(
             fmts(indoc!(
@@ -266,7 +286,12 @@ mod blockquote {
     #[test]
     fn simple() {
         assert_eq!(
-            fmts(" > a\n > b  \n > c"),
+            fmts(indoc!(
+                "
+             > a
+             > b  
+             > c"
+            )),
             (
                 " > a\n > b  \n > c".into(),
                 State {

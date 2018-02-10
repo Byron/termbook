@@ -124,7 +124,8 @@ where
                     },
                     CodeBlock(ref info) => f.write_str("```")
                         .and(f.write_str(info))
-                        .and(f.write_char('\n')),
+                        .and(f.write_char('\n'))
+                        .and(with_padding(&mut f, &state.padding)),
                     List(_) => Ok(()),
                 }
             }
@@ -141,11 +142,15 @@ where
                 Emphasis => f.write_char('*'),
                 Strong => f.write_str("**"),
                 Header(_) => {
-                    state.newlines_before_start += options.newlines_after_headline;
+                    if state.newlines_before_start < options.newlines_after_headline {
+                        state.newlines_before_start += options.newlines_after_headline;
+                    }
                     Ok(())
                 }
                 Paragraph => {
-                    state.newlines_before_start += options.newlines_after_paragraph;
+                    if state.newlines_before_start < options.newlines_after_paragraph {
+                        state.newlines_before_start += options.newlines_after_paragraph;
+                    }
                     Ok(())
                 }
                 CodeBlock(_) => {
@@ -174,7 +179,13 @@ where
             HardBreak => f.write_str("  \n")
                 .and(with_padding(&mut f, &state.padding)),
             SoftBreak => f.write_char('\n').and(with_padding(&mut f, &state.padding)),
-            Text(ref name) => f.write_str(name),
+            Text(ref name) => {
+                f.write_str(name)?;
+                if name.contains('\n') {
+                    with_padding(&mut f, &state.padding)?;
+                }
+                Ok(())
+            },
             InlineHtml(ref name) => f.write_str(name),
             FootnoteReference(ref name) => write!(f, "[^{}]", name),
         }?

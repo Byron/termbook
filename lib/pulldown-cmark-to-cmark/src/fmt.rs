@@ -84,9 +84,9 @@ where
         F: fmt::Write,
     {
         while s.newlines_before_start != 0 {
+            s.newlines_before_start -= 1;
             f.write_char('\n')?;
             padding(f, &s.padding)?;
-            s.newlines_before_start -= 1;
         }
         Ok(())
     }

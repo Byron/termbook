@@ -2,7 +2,7 @@ extern crate pulldown_cmark;
 extern crate pulldown_cmark_to_cmark;
 
 use pulldown_cmark::Event;
-use pulldown_cmark_to_cmark::{display, fmt};
+use pulldown_cmark_to_cmark::fmt;
 
 fn s(e: Event) -> String {
     let mut buf = String::new();
@@ -14,7 +14,7 @@ mod start {
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
     use pulldown_cmark::Alignment::{self, Center, Left, Right};
-    use super::{display, s};
+    use super::s;
 
     #[test]
     fn paragraph() {
@@ -51,27 +51,6 @@ mod start {
     #[test]
     fn item() {
         assert_eq!(s(Start(Item)), "")
-    }
-    #[test]
-    fn item_ordered_1() {
-        assert_eq!(
-            format!("{}", display::Item(display::ItemType::Ordered(1))),
-            "1. "
-        );
-    }
-    #[test]
-    fn item_ordered_2() {
-        assert_eq!(
-            format!("{}", display::Item(display::ItemType::Ordered(2))),
-            "2. "
-        );
-    }
-    #[test]
-    fn item_unordered() {
-        assert_eq!(
-            format!("{}", display::Item(display::ItemType::Unordered)),
-            "* "
-        );
     }
     #[test]
     fn footnote_definition() {

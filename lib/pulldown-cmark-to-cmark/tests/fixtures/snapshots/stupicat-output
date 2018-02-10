@@ -46,14 +46,15 @@ Unordered lists:
   * Nested
   
   * With
-  
-  Paragraphs and nested blocks:
-   > 
-   > A quote
-  
-  And some text at the end
+    
+    Paragraphs and nested blocks:
+     > 
+     > A quote
+    
+    And some text at the end
 
 * consetetur sadipscing elitr
+
 Ordered lists:
 
 1. Lorem impsum
@@ -86,8 +87,9 @@ And a mix of both:
      * Some
      * Nested
      * Bullets
-  1. Text
+1. Text
 * dolor sit amet
+
 ## Block level elements
 
 Block quotes

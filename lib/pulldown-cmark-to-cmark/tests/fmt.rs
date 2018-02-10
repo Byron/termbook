@@ -34,8 +34,6 @@ mod lazy_newlines {
             Tag::Emphasis,
             Tag::Strong,
             Tag::Code,
-            Tag::List(None),
-            Tag::List(Some(1)),
             Tag::BlockQuote,
             Tag::Link("".into(), "".into()),
             Tag::Image("".into(), "".into()),
@@ -202,6 +200,10 @@ mod inline_elements {
                 }
             )
         )
+    }
+    #[test]
+    fn autolinks_are_fully_resolved() {
+        assert_eq!(fmts("<http://a/b>").0, "[http://a/b](http://a/b)",)
     }
     #[test]
     fn links() {
@@ -371,22 +373,7 @@ mod codeblock {
 }
 
 mod list {
-    use super::{fmte, fmtes, fmts, Event, State, Tag};
-
-    #[test]
-    fn it_pushes_one_item_to_the_lists_stack_for_each_start_list() {
-        assert_eq!(
-            fmte(&[
-                Event::Start(Tag::List(None)),
-                Event::Start(Tag::List(Some(42)))
-            ]).1,
-            State {
-                list_stack: vec![None, Some(42)],
-                padding: vec!["  ".into()],
-                ..Default::default()
-            }
-        )
-    }
+    use super::{fmtes, fmts, Event, State, Tag};
 
     #[test]
     fn all_but_the_first_list_end_pop_the_padding() {
@@ -405,22 +392,7 @@ mod list {
             ).1,
             State {
                 padding: vec!["foo".into()],
-                ..Default::default()
-            }
-        )
-    }
-
-    #[test]
-    fn all_but_the_first_list_append_to_the_padding() {
-        assert_eq!(
-            fmte(&[
-                Event::Start(Tag::List(None)),
-                Event::Start(Tag::List(Some(444))),
-                Event::Start(Tag::List(None))
-            ]).1,
-            State {
-                list_stack: vec![None, Some(444), None],
-                padding: vec![String::from("  ").into(), "     ".into()],
+                newlines_before_start: 2,
                 ..Default::default()
             }
         )
@@ -450,7 +422,7 @@ mod list {
             (
                 "1. *b*\n   * *b*\n1. c".into(),
                 State {
-                    newlines_before_start: 1,
+                    newlines_before_start: 2,
                     ..Default::default()
                 }
             )
@@ -464,7 +436,7 @@ mod list {
             (
                 "11. *b*\n    * *b*\n    * c".into(),
                 State {
-                    newlines_before_start: 1,
+                    newlines_before_start: 2,
                     ..Default::default()
                 }
             )
@@ -474,14 +446,8 @@ mod list {
     #[test]
     fn unordered_ordered_unordered() {
         assert_eq!(
-            fmts("* a\n  1. b\n* c"),
-            (
-                "* a\n  1. b\n* c".into(),
-                State {
-                    newlines_before_start: 1,
-                    ..Default::default()
-                }
-            )
+            fmts("* a\n  1. b\n* c").0,
+            "* a\n  1. b\n* c",
         )
     }
 
@@ -492,7 +458,7 @@ mod list {
             (
                 "1. *b*\n   * *b*".into(),
                 State {
-                    newlines_before_start: 1,
+                    newlines_before_start: 2,
                     ..Default::default()
                 }
             )
@@ -506,7 +472,7 @@ mod list {
             (
                 "* a\n* b".into(),
                 State {
-                    newlines_before_start: 1,
+                    newlines_before_start: 2,
                     ..Default::default()
                 }
             )
@@ -520,7 +486,7 @@ mod list {
             (
                 "2. a\n2. b".into(),
                 State {
-                    newlines_before_start: 1,
+                    newlines_before_start: 2,
                     ..Default::default()
                 }
             )

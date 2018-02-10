@@ -104,7 +104,9 @@ where
                     List(ref list_type) => {
                         state.list_stack.push(list_type.clone());
                         if state.list_stack.len() > 1 {
-                            state.newlines_before_start += options.newlines_after_rest;
+                            if state.newlines_before_start < options.newlines_after_rest {
+                                state.newlines_before_start += options.newlines_after_rest;
+                            }
                         }
                     }
                     _ => {}
@@ -176,7 +178,9 @@ where
                     Ok(())
                 }
                 CodeBlock(_) => {
-                    state.newlines_before_start += options.newlines_after_codeblock;
+                    if state.newlines_before_start < options.newlines_after_codeblock {
+                        state.newlines_before_start += options.newlines_after_codeblock;
+                    }
                     f.write_str("```")
                 }
                 ref t @ Table(_) | ref t @ TableRow | ref t @ TableHead | ref t @ Rule | ref t @ Item => {

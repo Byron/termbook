@@ -13,6 +13,12 @@ title ""
 fixture="$root/fixtures"
 snapshot="$fixture/snapshots"
 
+(with "a more complex ordered list"
+  it "succeeds" && \
+    WITH_SNAPSHOT="$snapshot/stupicat-ordered-output" \
+    expect_run_sh $SUCCESSFULLY "${exe[*]} $fixture/ordered.md 2>/dev/null"
+)
+
 (with "a more complex unordered list"
   it "succeeds" && \
     WITH_SNAPSHOT="$snapshot/stupicat-unordered-output" \

@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate indoc;
 extern crate pulldown_cmark;
 extern crate pulldown_cmark_to_cmark;
 
@@ -241,6 +243,26 @@ mod blockquote {
         )
     }
 
+    #[test]
+    fn nested() {
+        assert_eq!(
+            fmts(indoc!(
+                "
+             > a
+             > > b
+             >
+             > c
+            "
+            )),
+            (
+                " > a\n >  > \n >  > b\n > \n > c".into(),
+                State {
+                    newlines_before_start: 2,
+                    ..Default::default()
+                }
+            )
+        )
+    }
     #[test]
     fn simple() {
         assert_eq!(

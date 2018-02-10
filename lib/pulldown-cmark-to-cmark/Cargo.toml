@@ -13,3 +13,6 @@ readme = "README.md"
 
 [dependencies]
 pulldown-cmark = "0.1.0"
+
+[dev-dependencies]
+indoc = "0.2.3"

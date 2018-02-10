@@ -91,6 +91,7 @@ where
                     }
                     _ => {}
                 }
+                let left_on_padded_newlines = state.newlines_before_start != 0;
                 consume_newlines(&mut f, &mut state)?;
                 match *tag {
                     Item => match state.list_stack.last() {
@@ -116,7 +117,11 @@ where
                         }
                         f.write_char(' ')
                     }
-                    BlockQuote => with_padding(&mut f, &state.padding),
+                    BlockQuote => if !left_on_padded_newlines {
+                        with_padding(&mut f, &state.padding)
+                    } else {
+                        Ok(())
+                    },
                     CodeBlock(ref info) => f.write_str("```")
                         .and(f.write_str(info))
                         .and(f.write_char('\n')),
@@ -166,7 +171,8 @@ where
                 }
                 FootnoteDefinition(_) => Ok(()),
             },
-            HardBreak => f.write_str("  \n").and(with_padding(&mut f, &state.padding)),
+            HardBreak => f.write_str("  \n")
+                .and(with_padding(&mut f, &state.padding)),
             SoftBreak => f.write_char('\n').and(with_padding(&mut f, &state.padding)),
             Text(ref name) => f.write_str(name),
             InlineHtml(ref name) => f.write_str(name),

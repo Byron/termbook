@@ -88,6 +88,26 @@ mod lazy_newlines {
 }
 
 #[test]
+fn it_applies_newlines_before_start_before_text() {
+    assert_eq!(
+        fmtes(
+            &[Event::Text("t".into())],
+            State {
+                newlines_before_start: 2,
+                ..Default::default()
+            }
+        ),
+        (
+            "\n\nt".into(),
+            State {
+                newlines_before_start: 0,
+                ..Default::default()
+            }
+        )
+    )
+}
+
+#[test]
 fn it_applies_newlines_before_start_before_html() {
     assert_eq!(
         fmtes(
@@ -244,6 +264,21 @@ mod blockquote {
     }
 
     #[test]
+    fn with_html() {
+        assert_eq!(
+            fmts(indoc!(
+                "
+         > <table>
+         > </table>"
+            )).0,
+            " > <table>\n > </table>",
+        )
+    }
+    #[test]
+    fn with_inlinehtml() {
+        assert_eq!(fmts(" > <br>").0, " > <br>",)
+    }
+    #[test]
     fn with_codeblock() {
         assert_eq!(
             fmts(indoc!(
@@ -253,14 +288,8 @@ mod blockquote {
              > t2
              > ```
             "
-            )),
-            (
-                " > ```a\n > t1\n > t2\n > ```".into(),
-                State {
-                    newlines_before_start: 2,
-                    ..Default::default()
-                }
-            )
+            )).0,
+            " > ```a\n > t1\n > t2\n > ```",
         )
     }
     #[test]
@@ -273,14 +302,8 @@ mod blockquote {
              >
              > c
             "
-            )),
-            (
-                " > a\n >  > \n >  > b\n > \n > c".into(),
-                State {
-                    newlines_before_start: 2,
-                    ..Default::default()
-                }
-            )
+            )).0,
+            " > a\n >  > \n >  > b\n > \n > c",
         )
     }
     #[test]

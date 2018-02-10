@@ -41,7 +41,7 @@ where
     F: fmt::Write,
 {
     let mut state = state.unwrap_or_default();
-    fn with_padding<'a, F>(f: &mut F, p: &[Cow<'a, str>]) -> fmt::Result
+    fn padding<'a, F>(f: &mut F, p: &[Cow<'a, str>]) -> fmt::Result
     where
         F: fmt::Write,
     {
@@ -56,20 +56,35 @@ where
     {
         while s.newlines_before_start != 0 {
             f.write_char('\n')?;
-            with_padding(f, &s.padding)?;
+            padding(f, &s.padding)?;
             s.newlines_before_start -= 1;
         }
         Ok(())
+    }
+
+    fn print_text<'a, F>(t: &str, f: &mut F, p: &[Cow<'a, str>]) -> fmt::Result
+    where
+        F: fmt::Write,
+    {
+        if t.contains('\n') {
+            let ntokens = t.split('\n').count();
+            for (tid, token) in t.split('\n').enumerate() {
+                f.write_str(token).and(if tid + 1 == ntokens {
+                    Ok(())
+                } else {
+                    f.write_char('\n').and(padding(f, p))
+                })?;
+            }
+            Ok(())
+        } else {
+            f.write_str(t)
+        }
     }
 
     for event in events {
         use pulldown_cmark::Event::*;
         use pulldown_cmark::Tag::*;
         match *event.borrow() {
-            Html(ref text) => {
-                consume_newlines(&mut f, &mut state)?;
-                f.write_str(text)
-            }
             Start(ref tag) => {
                 match *tag {
                     BlockQuote => state.padding.push(" > ".into()),
@@ -118,14 +133,14 @@ where
                         f.write_char(' ')
                     }
                     BlockQuote => if !left_on_padded_newlines {
-                        with_padding(&mut f, &state.padding)
+                        padding(&mut f, &state.padding)
                     } else {
                         Ok(())
                     },
                     CodeBlock(ref info) => f.write_str("```")
                         .and(f.write_str(info))
                         .and(f.write_char('\n'))
-                        .and(with_padding(&mut f, &state.padding)),
+                        .and(padding(&mut f, &state.padding)),
                     List(_) => Ok(()),
                 }
             }
@@ -176,16 +191,12 @@ where
                 }
                 FootnoteDefinition(_) => Ok(()),
             },
-            HardBreak => f.write_str("  \n")
-                .and(with_padding(&mut f, &state.padding)),
-            SoftBreak => f.write_char('\n').and(with_padding(&mut f, &state.padding)),
-            Text(ref name) => {
-                f.write_str(name)?;
-                if name.contains('\n') {
-                    with_padding(&mut f, &state.padding)?;
-                }
-                Ok(())
-            },
+            HardBreak => f.write_str("  \n").and(padding(&mut f, &state.padding)),
+            SoftBreak => f.write_char('\n').and(padding(&mut f, &state.padding)),
+            Html(ref text) | Text(ref text) => {
+                consume_newlines(&mut f, &mut state)?;
+                print_text(text, &mut f, &state.padding)
+            }
             InlineHtml(ref name) => f.write_str(name),
             FootnoteReference(ref name) => write!(f, "[^{}]", name),
         }?

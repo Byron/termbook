@@ -22,7 +22,7 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
             }
         });
     let build = App::new("build")
-        .help(
+        .about(
             "Build the `mdbook` compatible book in the current working directory \
              or in the given location.",
         )

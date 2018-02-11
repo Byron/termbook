@@ -35,12 +35,11 @@ title "termbook build"
     (with "no specifically marked code blocks"
       book="$fixture/book-no-markers"
       it "succeeds" && {
-        WITH_SNAPSHOT="$snapshot/build-rewrite-only" \
         expect_run $SUCCESSFULLY "$exe" build --rewrite $book
       }
       
       it "wrote the original books files without any insertions" && {
-        expect_snapshot "$snapshot/build-no-markers" "$OUTPUT_DIR/md" 
+        expect_snapshot "$snapshot/book-no-markers" "$OUTPUT_DIR/markdown-rewrite" 
       }
     )
   )

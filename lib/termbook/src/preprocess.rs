@@ -11,7 +11,7 @@ impl Preprocessor for RunShellScript {
     }
 
     fn run(&self, _ctx: &PreprocessorContext, book: &mut Book) -> MdBookResult<()> {
-        book.for_each_mut(|item: &mut BookItem| println!("{:?}", item));
+        //        book.for_each_mut(|item: &mut BookItem| println!("{:?}", item));
         Ok(())
     }
 }

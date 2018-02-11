@@ -37,6 +37,6 @@ pub fn build_context_from(args: &ArgMatches) -> Result<BuildContext, Error> {
             .map(Path::new)
             .map(Into::into)
             .unwrap_or_else(|| current_dir().expect("current dir available")),
-        rewrite: args.value_of("rewrite").map_or(false, |_| true),
+        rewrite: args.is_present("rewrite"),
     })
 }

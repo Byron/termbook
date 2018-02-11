@@ -787,11 +787,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "termbook"
+version = "0.1.0"
+dependencies = [
+ "mdbook 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pulldown-cmark-to-cmark 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "termbook-cli"
 version = "0.1.0"
 dependencies = [
  "mdbook 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pulldown-cmark-to-cmark 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "termbook 0.1.0",
 ]
 
 [[package]]

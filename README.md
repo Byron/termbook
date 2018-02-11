@@ -12,15 +12,6 @@ It came to life for the documentation needs of [share-secrets-safely][sheesy]
 
 ### Roadmap
 
-#### pulldown-cmark-to-cmark
-
-A utility library which translates [`Event`][pdcm-event] back to markdown.
-It's the prerequisite for writing markdown filters which can work as
-[mdbook-preprocessors][mdbook-prep].
-
-[pdcm-event]: https://docs.rs/pulldown-cmark/0.1.0/pulldown_cmark/enum.Event.html
-[mdbook-prep]: https://rust-lang-nursery.github.io/mdBook/for_developers/preprocessors.html
-
 #### `termbook` and `termbook-cli` - minimal viable product
 
 Termbook will be tested on a high-level comprised mostly of journey tests. The CLI

@@ -1,12 +1,76 @@
+#[macro_use]
+extern crate clap;
+#[macro_use]
+extern crate failure;
+#[macro_use]
+extern crate lazy_static;
 extern crate termbook;
-use std::env;
-use std::path::PathBuf;
+
+mod cli;
+mod parse;
+mod types;
+
+use std::process;
+
+use clap::ArgMatches;
+use failure::Error;
+use std::io::{stderr, Write};
+
+pub fn print_causes<E, W>(e: E, mut w: W)
+where
+    E: Into<Error>,
+    W: Write,
+{
+    let e = e.into();
+    let causes = e.causes().collect::<Vec<_>>();
+    let num_causes = causes.len();
+    for (index, cause) in causes.iter().enumerate() {
+        if index == 0 {
+            writeln!(w, "{}", cause).ok();
+            if num_causes > 1 {
+                writeln!(w, "Caused by: ").ok();
+            }
+        } else {
+            writeln!(w, " {}: {}", num_causes - index, cause).ok();
+        }
+    }
+}
+fn usage_and_exit(args: &ArgMatches) -> ! {
+    println!("{}", args.usage());
+    process::exit(1)
+}
+
+fn ok_or_exit<T, E>(r: Result<T, E>) -> T
+where
+    E: Into<Error>,
+{
+    match r {
+        Ok(r) => r,
+        Err(e) => {
+            write!(stderr(), "error: ").ok();
+            print_causes(e, stderr());
+            process::exit(1);
+        }
+    }
+}
 
 fn main() {
-    let root_dir = env::args()
-        .skip(1)
-        .next()
-        .expect("book root directory as first argument");
-
-    termbook::build(PathBuf::from(root_dir)).expect("valid book");
+    let app = cli::app();
+    let appc = app.clone();
+    let matches = app.get_matches();
+    match matches.subcommand() {
+        ("completions", Some(args)) => {
+            ok_or_exit(parse::generate_completions(appc, &args));
+            process::exit(0);
+        }
+        ("build", Some(args)) => {
+            let ctx = ok_or_exit(parse::build_context_from(&args));
+            let mut book = ok_or_exit(termbook::new(&ctx.path).map_err(|e| format_err!("{}", e)));
+            if ctx.rewrite {
+                book.with_renderer(termbook::Rewrite::new());
+            }
+            ok_or_exit(book.build().map_err(|e| format_err!("{}", e)))
+        }
+        _ => usage_and_exit(&matches),
+    };
 }

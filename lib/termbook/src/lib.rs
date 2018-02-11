@@ -1,11 +1,13 @@
 extern crate mdbook;
+
 use mdbook::{BookItem, MDBook};
 use mdbook::book::Book;
+use mdbook::renderer::{RenderContext, Renderer};
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use mdbook::errors::Result as MdBookResult;
-use std::path::PathBuf;
+use std::path::Path;
 
-struct RunShellScript;
+pub struct RunShellScript;
 
 impl Preprocessor for RunShellScript {
     fn name(&self) -> &str {
@@ -18,8 +20,26 @@ impl Preprocessor for RunShellScript {
     }
 }
 
-pub fn build(dir: PathBuf) -> MdBookResult<()> {
-    let mut md = MDBook::load(dir).expect("valid book");
+pub struct Rewrite;
+
+impl Rewrite {
+    pub fn new() -> Self {
+        Rewrite
+    }
+}
+
+impl Renderer for Rewrite {
+    fn name(&self) -> &str {
+        "markdown-rewrite"
+    }
+
+    fn render(&self, _ctx: &RenderContext) -> MdBookResult<()> {
+        unimplemented!()
+    }
+}
+
+pub fn new(dir: &Path) -> MdBookResult<MDBook> {
+    let mut md = MDBook::load(dir)?;
     md.with_preprecessor(RunShellScript);
-    md.build()
+    Ok(md)
 }

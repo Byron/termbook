@@ -21,6 +21,9 @@ path = "src/main.rs"
 
 [dependencies]
 pulldown-cmark-to-cmark = "1"
+clap = "2"
+failure = "0.1.1"
+lazy_static = "1.0.0"
 
 [dependencies.termbook]
 version = "0.1.0"

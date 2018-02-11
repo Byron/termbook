@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Byron/termbook.svg?branch=master)](https://travis-ci.org/Byron/termbook)
+
 A utility library which translates [`Event`][pdcm-event] back to markdown.
 It's the prerequisite for writing markdown filters which can work as
 [mdbook-preprocessors][mdbook-prep].

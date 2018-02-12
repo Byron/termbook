@@ -1,4 +1,6 @@
 extern crate mdbook;
+extern crate pulldown_cmark;
+extern crate pulldown_cmark_to_cmark;
 
 use mdbook::MDBook;
 use mdbook::errors::Result as MdBookResult;

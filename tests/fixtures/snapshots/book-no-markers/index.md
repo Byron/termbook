@@ -1,6 +1,7 @@
 # Some Headline
 
 * bullet
+
 1. counted
 1. other counted
 
@@ -20,4 +21,3 @@ fn foo() {
 $ echo 'something'
 $ echo 'that will never be executed'
 ```
-

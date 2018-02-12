@@ -33,9 +33,9 @@ title "termbook build"
 (sandboxed
   (with "rewrite enabled"
     (with "no specifically marked code blocks"
-      book="$fixture/book-no-markers"
+      make-book "$fixture/books/no-markers.md"
       it "succeeds" && {
-        expect_run $SUCCESSFULLY "$exe" build --rewrite $book
+        expect_run $SUCCESSFULLY "$exe" build --rewrite $BOOK
       }
       
       it "wrote the original books files without any insertions" && {

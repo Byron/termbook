@@ -36,6 +36,17 @@ That should make recordings reproducible.
 
 [mdcat]: https://github.com/lunaryorn/mdcat
 
+#### `termbook` renderer plugin programs for `mdbook`
+
+Provide all renderers in `termbook` as standalone `mdbook` compatible plugin
+renderers, to allow easier integration with the `mdbook` binary.
+
+#### `termbook` preprocessor plugin programs  for `mdbook`
+
+Ideally, we don't have to wrap `mdbook` into `termbook`. Instead, there should
+be plugin-preprocessor support for `mdbook`, similar to what's already done
+for renderers.
+
 ### Maintenance Guide
 
 #### Making a new release

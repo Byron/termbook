@@ -34,3 +34,13 @@ mdbook itself, and make recording that using asciinema easy.
 That should make recordings reproducible.
 
 [mdcat]: https://github.com/lunaryorn/mdcat
+
+### Maintenance Guide
+
+#### Making a new release
+
+ * **Assure all documentation is up-to-date and tests are green**
+ * update the `version` in all `Cargo.toml` files and `git commit`
+ * run `cargo publish` for the library and the CLI
+ * run `git tag -s <version>`
+ * run `git push --tags origin master`

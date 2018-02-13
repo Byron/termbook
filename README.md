@@ -17,6 +17,12 @@ Installation documentation can [be found here][installation-docs].
 
 [installation-docs]: https://byron.github.io/termbook/cli/installation.html#installation
 
+### Documentation
+
+`termbook` uses `termbook` to document itself. [Click here for more!][docs]
+
+[docs]: https://byron.github.io/termbook
+
 ### Roadmap
 
 #### `termbook interactive` and `asciinema`

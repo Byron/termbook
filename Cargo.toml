@@ -11,7 +11,7 @@ license = "Apache-2.0"
 keywords = ["markdown", "terminal", "common-mark"]
 repository = "https://github.com/Byron/termbook"
 homepage = "https://github.com/Byron/termbook"
-documentation = "https://docs.rs/crate/termbook-cli"
+documentation = "https://byron.github.io/termbook"
 readme = "README.md"
 
 

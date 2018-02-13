@@ -9,7 +9,6 @@ keywords = ["markdown", "terminal", "common-mark"]
 repository = "https://github.com/Byron/termbook"
 homepage = "https://github.com/Byron/termbook/lib/termbook"
 documentation = "https://docs.rs/crate/termbook"
-readme = "README.md"
 
 [dependencies]
 mdbook = "0.1.1"

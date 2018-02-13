@@ -1,7 +1,7 @@
 [package]
 name = "termbook"
-version = "0.1.0"
-authors = ["Sebastian Thiel <sthiel@thoughtworks.com>"]
+version = "1.0.0"
+authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 
 description = "The library behind the `termbook-cli`."
 license = "Apache-2.0"

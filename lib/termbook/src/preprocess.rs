@@ -73,6 +73,72 @@ impl State {
             .iter()
             .any(|a| if let &Action::Hide = a { true } else { false })
     }
+
+    fn apply_actions(&mut self, events: &mut Vec<Event>) {
+        for action in &self.actions {
+            match *action {
+                Action::Hide => {}
+                Action::Use(ref id) => match self.prepare.get(id) {
+                    Some(code) => self.code.insert_str(0, code),
+                    None => {
+                        self.error = Some(
+                            format!(
+                                "Reference named '{}' was not yet added with a 'prepare' block.",
+                                id
+                            ).into(),
+                        )
+                    }
+                },
+                Action::Prepare(ref id) => {
+                    self.prepare.insert(id.to_owned(), self.code.clone());
+                }
+                Action::Exec {
+                    ref program,
+                    desired_exit_status,
+                } => {
+                    let spawn_result = Command::new(program)
+                        .stdin(Stdio::piped())
+                        .stdout(Stdio::piped())
+                        .stderr(Stdio::piped())
+                        .spawn()
+                        .map_err(Into::into)
+                        .and_then(|mut c: Child| {
+                            c.stdin
+                                .as_mut()
+                                .expect("stdin to be configured")
+                                .write_all(self.code.as_bytes())
+                                .and_then(|_| c.wait_with_output())
+                                .map_err(Into::into)
+                        });
+                    match spawn_result {
+                        Ok(output) => {
+                            let actual_exit_status = output.status.code().unwrap_or(1);
+                            if actual_exit_status != desired_exit_status {
+                                self.error = Some(
+                                    format!(
+                                        "After running '{}': Expected exit status '{}' to be '{}'",
+                                        program, actual_exit_status, desired_exit_status
+                                    ).into(),
+                                );
+                            } else {
+                                use pulldown_cmark::Event::*;
+                                use pulldown_cmark::Tag::*;
+                                events.push(Start(CodeBlock("output".into())));
+                                events.push(Text(
+                                    String::from_utf8_lossy(&output.stdout).into_owned().into(),
+                                ));
+                                events.push(Text(
+                                    String::from_utf8_lossy(&output.stderr).into_owned().into(),
+                                ));
+                                events.push(End(CodeBlock("output".into())));
+                            }
+                        }
+                        Err(e) => self.error = Some(e),
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn parse_actions(info: &str) -> Result<Vec<Action>, Error> {
@@ -118,68 +184,7 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
             state.should_hide()
         }
         End(CodeBlock(_)) => {
-            for action in &state.actions {
-                match *action {
-                    Action::Hide => {}
-                    Action::Use(ref id) => match state.prepare.get(id) {
-                        Some(code) => state.code.insert_str(0, code),
-                        None => {
-                            state.error = Some(
-                                format!(
-                                "Reference named '{}' was not yet added with a 'prepare' block.",
-                                id
-                            ).into(),
-                            )
-                        }
-                    },
-                    Action::Prepare(ref id) => {
-                        state.prepare.insert(id.to_owned(), state.code.clone());
-                    }
-                    Action::Exec {
-                        ref program,
-                        desired_exit_status,
-                    } => {
-                        let spawn_result = Command::new(program)
-                            .stdin(Stdio::piped())
-                            .stdout(Stdio::piped())
-                            .stderr(Stdio::piped())
-                            .spawn()
-                            .map_err(Into::into)
-                            .and_then(|mut c: Child| {
-                                c.stdin
-                                    .as_mut()
-                                    .expect("stdin to be configured")
-                                    .write_all(state.code.as_bytes())
-                                    .and_then(|_| c.wait_with_output())
-                                    .map_err(Into::into)
-                            });
-                        match spawn_result {
-                            Ok(output) => {
-                                let actual_exit_status = output.status.code().unwrap_or(1);
-                                if actual_exit_status != desired_exit_status {
-                                    state.error = Some(
-                                        format!(
-                                            "After running '{}': Expected exit status '{}' to be '{}'",
-                                            program,
-                                            actual_exit_status, desired_exit_status
-                                        ).into(),
-                                    );
-                                } else {
-                                    res.push(Start(CodeBlock("output".into())));
-                                    res.push(Text(
-                                        String::from_utf8_lossy(&output.stdout).into_owned().into(),
-                                    ));
-                                    res.push(Text(
-                                        String::from_utf8_lossy(&output.stderr).into_owned().into(),
-                                    ));
-                                    res.push(End(CodeBlock("output".into())));
-                                }
-                            }
-                            Err(e) => state.error = Some(e),
-                        }
-                    }
-                }
-            }
+            state.apply_actions(&mut res);
             let hide = state.should_hide();
             state.actions.clear();
             state.code.clear();

@@ -12,14 +12,52 @@ enum Action {
     Exec(usize),
 }
 
+impl Action {
+    fn from_str(key: &str, val: Option<&str>) -> Option<Action> {
+        match key {
+            "exec" => Some(Action::Exec(0)),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Default)]
 struct State {
-    action: Option<Action>,
+    actions: Option<Vec<Action>>,
     code: String,
     error: Option<Error>,
 }
 
+fn parse_actions(info: &str) -> Option<Vec<Action>> {
+    let mut res = None::<Vec<_>>;
+    for token in info.trim().split(',') {
+        let mut kvi = token.splitn(2, '=');
+        if let Some(action) = match (kvi.next().map(str::trim), kvi.next().map(str::trim)) {
+            (Some(key), possible_value) => Action::from_str(key, possible_value),
+            _ => None,
+        } {
+            res = match res {
+                Some(mut v) => {
+                    v.push(action);
+                    Some(v)
+                }
+                None => Some(vec![action]),
+            }
+        }
+    }
+    res
+}
+
 fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Event<'a>>> {
+    use pulldown_cmark::Event::*;
+    use pulldown_cmark::Tag::*;
+
+    match event {
+        Start(CodeBlock(ref info)) => {
+            state.actions = parse_actions(info);
+        }
+        _ => {}
+    };
     Some(vec![event])
 }
 

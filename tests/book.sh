@@ -88,6 +88,58 @@ title "termbook build"
         }
       )
     )
+    
+    (with "'prepare' block"
+      (with "no name"
+        make-book "$fixture/books/exec-prepare-unnamed.md"
+        
+        it "fails as a name is needed" && {
+          WITH_SNAPSHOT="$snapshot/exec-prepare-unnamed" \
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
+      (with "a name and a reference in an 'exec' block"
+        make-book "$fixture/books/exec-prepare-named-and-referenced.md"
+        
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" $BOOK
+        }
+        
+        it "executes the prepare step as well" && {
+          expect_snapshot "$snapshot/book-exec-prepare-named-and-referenced" "$OUTPUT_DIR/markdown-rewrite" 
+        }
+      )
+      (with "having a 'use' step itself and an 'exec' block that uses it"
+        make-book "$fixture/books/exec-prepare-named-with-use-and-referenced.md"
+        
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" $BOOK
+        }
+        
+        it "executes the prepare step and its prepare step" && {
+          expect_snapshot "$snapshot/book-exec-prepare-named-with-use-and-referenced" "$OUTPUT_DIR/markdown-rewrite" 
+        }
+      )
+    )
+    
+    (with "'use' block"
+      (with "name that wasn't defined with 'prepare'"
+        make-book "$fixture/books/use-unknown.md"
+        
+        it "fails" && {
+          WITH_SNAPSHOT="$snapshot/use-unknown" \
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
+      (with "no name"
+        make-book "$fixture/books/use-unnamed.md"
+        
+        it "fails as a name is needed" && {
+          WITH_SNAPSHOT="$snapshot/use-unnamed" \
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
+    )
   )
 )
 

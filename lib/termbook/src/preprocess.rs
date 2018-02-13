@@ -8,6 +8,7 @@ use pulldown_cmark_to_cmark::fmt::cmark;
 
 use std::process::{Child, Command, Stdio};
 use std::io::Write;
+use std::collections::HashMap;
 
 pub struct RunCodeBlocks;
 
@@ -18,11 +19,19 @@ enum Action {
         program: String,
         desired_exit_status: i32,
     },
+    Prepare(String),
+    Use(String),
 }
 
 impl Action {
     fn from_str(program: &str, key: &str, val: Option<&str>) -> Result<Option<Action>, Error> {
         Ok(match key {
+            "use" => Some(Action::Use(val.map(ToOwned::to_owned).ok_or_else(|| {
+                Error::from("'Use' steps need a name, like 'use=name'.")
+            })?)),
+            "prepare" => Some(Action::Prepare(val.map(ToOwned::to_owned).ok_or_else(
+                || Error::from("'Prepare' steps need a name, like 'prepare=name'."),
+            )?)),
             "exec" => Some(Action::Exec {
                 program: program.to_owned(),
                 desired_exit_status: match val {
@@ -45,6 +54,7 @@ struct State {
     actions: Vec<Action>,
     code: String,
     error: Option<Error>,
+    prepare: HashMap<String, String>,
 }
 
 fn parse_actions(info: &str) -> Result<Vec<Action>, Error> {
@@ -89,6 +99,20 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
         End(CodeBlock(_)) => {
             for action in &state.actions {
                 match *action {
+                    Action::Use(ref id) => match state.prepare.get(id) {
+                        Some(code) => state.code.insert_str(0, code),
+                        None => {
+                            state.error = Some(
+                                format!(
+                                "Reference named '{}' was not yet added with a 'prepare' block.",
+                                id
+                            ).into(),
+                            )
+                        }
+                    },
+                    Action::Prepare(ref id) => {
+                        state.prepare.insert(id.to_owned(), state.code.clone());
+                    }
                     Action::Exec {
                         ref program,
                         desired_exit_status,

@@ -7,17 +7,17 @@
 
 ...and here is how!
 
-```
+````
 plain text
-```
+````
 
-```rust
+````rust
 fn foo() {
     let x = 5;
 }
-```
+````
 
-```bash
+````bash
 $ echo 'something'
 $ echo 'that will never be executed'
-```
+````

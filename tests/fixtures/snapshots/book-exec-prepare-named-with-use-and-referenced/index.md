@@ -1,17 +1,17 @@
-```bash,prepare=one
+````bash,prepare=one
 echo 'one'
-```
+````
 
-```bash,use=one,prepare=two
+````bash,use=one,prepare=two
 echo 'two'
-```
+````
 
-```bash,use=two,exec
+````bash,use=two,exec
 echo 'with multiple preparation'
-```
+````
 
-```output
+````output
 one
 two
 with multiple preparation
-```
+````

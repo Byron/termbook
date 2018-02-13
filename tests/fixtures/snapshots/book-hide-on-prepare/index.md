@@ -2,11 +2,11 @@
 
 some text
 
-```bash,use=one,exec
+````bash,use=one,exec
 echo 'with hidden preprare'
-```
+````
 
-```output
+````output
 one
 with hidden preprare
-```
+````

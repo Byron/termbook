@@ -18,6 +18,8 @@ readme = "README.md"
 [[bin]]
 name = "termbook"
 path = "src/main.rs"
+doc = false
+doctest = false
 
 [dependencies]
 pulldown-cmark-to-cmark = "1"

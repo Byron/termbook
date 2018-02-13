@@ -1,11 +1,14 @@
 use mdbook::renderer::{RenderContext, Renderer};
 use mdbook::book::BookItem;
-use super::MdBookResult;
+use mdbook::errors::Result;
 
 use std::fs::create_dir_all;
 use std::fs::OpenOptions;
 use std::io::Write;
 
+/// An implementation of a renderer which writes all preprocessed markdown files.
+///
+/// This can be useful for debugging.
 pub struct Rewrite;
 
 impl Rewrite {
@@ -19,7 +22,7 @@ impl Renderer for Rewrite {
         "markdown-rewrite"
     }
 
-    fn render(&self, ctx: &RenderContext) -> MdBookResult<()> {
+    fn render(&self, ctx: &RenderContext) -> Result<()> {
         for item in ctx.book.iter() {
             if let &BookItem::Chapter(ref chapter) = item {
                 let dir = ctx.destination

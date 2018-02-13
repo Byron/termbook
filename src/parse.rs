@@ -3,7 +3,7 @@ use std::path::Path;
 use std::io::stdout;
 use std::str::FromStr;
 use std::env::current_dir;
-use termbook::Error;
+use termbook::mdbook::errors::Error;
 
 use types::BuildContext;
 

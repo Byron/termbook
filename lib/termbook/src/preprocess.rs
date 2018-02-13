@@ -1,7 +1,7 @@
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use mdbook::BookItem;
-use super::MdBookResult;
 use mdbook::book::Book;
+use mdbook::errors::Result;
 use mdbook::errors::Error;
 use pulldown_cmark::{Event, Parser};
 use pulldown_cmark_to_cmark::fmt::cmark;
@@ -10,6 +10,7 @@ use std::process::{Child, Command, Stdio};
 use std::io::Write;
 use std::collections::HashMap;
 
+/// A preprocessor which runs specifically tagged codeblocks.
 pub struct RunCodeBlocks;
 
 const PREPROCESSOR_NAME: &'static str = "run-code-blocks";
@@ -25,7 +26,7 @@ enum Action {
 }
 
 impl Action {
-    fn from_str(program: &str, key: &str, val: Option<&str>) -> Result<Option<Action>, Error> {
+    fn from_str(program: &str, key: &str, val: Option<&str>) -> Result<Option<Action>> {
         Ok(match key {
             "hide" => {
                 if let Some(v) = val {
@@ -147,7 +148,7 @@ impl State {
     }
 }
 
-fn parse_actions(info: &str) -> Result<Vec<Action>, Error> {
+fn parse_actions(info: &str) -> Result<Vec<Action>> {
     let mut res = Vec::new();
     let mut shell = "bash";
     for (tid, token) in info.trim().split(',').enumerate() {
@@ -204,7 +205,7 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
     Some(res)
 }
 
-fn process_chapter(item: &mut BookItem) -> Result<(), Error> {
+fn process_chapter(item: &mut BookItem) -> Result<()> {
     let mut state = State::default();
     if let &mut BookItem::Chapter(ref mut chapter) = item {
         let md = {
@@ -237,7 +238,7 @@ impl Preprocessor for RunCodeBlocks {
         PREPROCESSOR_NAME
     }
 
-    fn run(&self, _ctx: &PreprocessorContext, book: &mut Book) -> MdBookResult<()> {
+    fn run(&self, _ctx: &PreprocessorContext, book: &mut Book) -> Result<()> {
         let mut result = Ok(());
         book.for_each_mut(|item: &mut BookItem| {
             if result.is_err() {

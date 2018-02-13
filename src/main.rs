@@ -9,7 +9,7 @@ mod parse;
 mod types;
 
 use std::process;
-use termbook::Error;
+use termbook::mdbook::errors::Error;
 
 use clap::ArgMatches;
 use std::io::{stderr, Write};
@@ -64,7 +64,7 @@ fn main() {
         }
         ("build", Some(args)) => {
             let ctx = ok_or_exit(parse::build_context_from(&args));
-            let mut book = ok_or_exit(termbook::new(&ctx.path));
+            let mut book = ok_or_exit(termbook::load(&ctx.path));
             if ctx.rewrite {
                 book.with_renderer(termbook::Rewrite::new());
             }

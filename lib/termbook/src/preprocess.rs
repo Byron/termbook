@@ -6,12 +6,15 @@ use mdbook::errors::Error;
 use pulldown_cmark::{Event, Parser};
 use pulldown_cmark_to_cmark::fmt::cmark;
 
+use std::process::{Child, Command, Stdio};
+use std::io::Write;
+
 pub struct RunShellScript;
 
 enum Action {
     Exec {
         program: String,
-        desired_exit_status: usize,
+        desired_exit_status: i32,
     },
 }
 
@@ -22,7 +25,10 @@ impl Action {
                 program: program.to_owned(),
                 desired_exit_status: match val {
                     Some(val) => val.parse().map_err(|e| {
-                        format!("Failed to parse integer for exec key with error: {}", e)
+                        format!(
+                            "Failed to parse integer from '{}' for 'exec' key with error: {}",
+                            val, e
+                        )
                     })?,
                     None => 0,
                 },
@@ -84,7 +90,49 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
                     Action::Exec {
                         ref program,
                         desired_exit_status,
-                    } => {}
+                    } => {
+                        let spawn_result = Command::new(program)
+                            .stdin(Stdio::piped())
+                            .stdout(Stdio::piped())
+                            .stderr(Stdio::piped())
+                            .spawn()
+                            .map_err(Into::into)
+                            .and_then(|mut c: Child| {
+                                c.stdin
+                                    .as_mut()
+                                    .expect("stdin to be configured")
+                                    .write_all(state.code.as_bytes())
+                                    .and_then(|_| c.wait_with_output())
+                                    .map_err(Into::into)
+                            });
+                        match spawn_result {
+                            Ok(output) => {
+                                let actual_exit_status = output.status.code().unwrap_or(1);
+                                if actual_exit_status != desired_exit_status {
+                                    state.error = Some(
+                                        format!(
+                                            "Expected exit status '{}' to be '{}'",
+                                            actual_exit_status, desired_exit_status
+                                        ).into(),
+                                    );
+                                } else {
+                                    let mut events = Vec::new();
+                                    events.push(event);
+
+                                    events.push(Start(CodeBlock("output".into())));
+                                    events.push(Text(
+                                        String::from_utf8_lossy(&output.stdout).into_owned().into(),
+                                    ));
+                                    events.push(Text(
+                                        String::from_utf8_lossy(&output.stderr).into_owned().into(),
+                                    ));
+                                    events.push(End(CodeBlock("output".into())));
+                                    return Some(events);
+                                }
+                            }
+                            Err(e) => state.error = Some(e),
+                        }
+                    }
                 }
             }
             state.actions.clear();

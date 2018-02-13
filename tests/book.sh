@@ -10,6 +10,7 @@ exe="$(cd "${exe%/*}" && pwd)/${exe##*/}"
 source "$root/book-helpers.sh"
 
 SUCCESSFULLY=0
+WITH_FAILURE=1
 
 fixture="$root/fixtures"
 snapshot="$fixture/snapshots"
@@ -44,16 +45,48 @@ title "termbook build"
       }
     )
     
-    (with "an 'exec' codeblock with no output specification"
-      make-book "$fixture/books/exec-blank.md"
+    (with "an 'exec' codeblock"
+      (with "no exit code specification"
+        make-book "$fixture/books/exec-blank.md"
+        
+        it "succeeds as it defaults to 'expect success'" && {
+          expect_run $SUCCESSFULLY "${args[@]}" $BOOK
+        }
+        
+        it "added another marked codeblock with the output" && {
+          expect_snapshot "$snapshot/book-exec-blank" "$OUTPUT_DIR/markdown-rewrite" 
+        }
+      )
       
-      it "succeeds" && {
-        expect_run $SUCCESSFULLY "${args[@]}" $BOOK
-      }
+      (with "exit code specification"
+        make-book "$fixture/books/exec-exit-code-error.md"
+        
+        it "succeeds as the exit code matches" && {
+          expect_run $SUCCESSFULLY "${args[@]}" $BOOK
+        }
+        
+        it "added another marked codeblock with the output" && {
+          expect_snapshot "$snapshot/book-exec-exit-code-error" "$OUTPUT_DIR/markdown-rewrite" 
+        }
+      )
       
-      it "added another marked codeblock with the output" && {
-        expect_snapshot "$snapshot/book-exec-blank" "$OUTPUT_DIR/markdown-rewrite" 
-      }
+      (with "exit code specification that does not match the actual exit code"
+        make-book "$fixture/books/exec-exit-code-mismatch.md"
+        
+        it "fails" && {
+          WITH_SNAPSHOT="$snapshot/exec-exit-code-mismatch" \
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
+      
+      (with "invalid exit code specification"
+        make-book "$fixture/books/exec-exit-code-invalid.md"
+        
+        it "fails" && {
+          WITH_SNAPSHOT="$snapshot/exec-exit-code-invalid" \
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
     )
   )
 )

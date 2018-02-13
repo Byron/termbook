@@ -1,4 +1,3 @@
-run-code-blocks: Executed program 'bash'.
 error: run-code-blocks: Preprocessing failed for chapter 'Introduction' in file 'index.md'.
 Caused by: 
- 1: After running 'bash': Expected exit status '0' to be '2'
+ 1: Failed to execute 'foobar-program' with error: No such file or directory (os error 2)

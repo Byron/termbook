@@ -46,6 +46,15 @@ title "termbook build"
     )
     
     (with "an 'exec' codeblock"
+      (with "a non-existing program"
+        make-book "$fixture/books/exec-nonexisting-program.md"
+        
+        it "fails" && {
+          WITH_SNAPSHOT="$snapshot/exec-nonexisting-program"\
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
+      
       (with "no exit code specification"
         make-book "$fixture/books/exec-blank.md"
         

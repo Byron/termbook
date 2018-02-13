@@ -101,7 +101,9 @@ impl State {
                         .stdout(Stdio::piped())
                         .stderr(Stdio::piped())
                         .spawn()
-                        .map_err(Into::into)
+                        .map_err(|e| {
+                            format!("Failed to execute '{}' with error: {}", program, e).into()
+                        })
                         .and_then(|mut c: Child| {
                             c.stdin
                                 .as_mut()
@@ -112,6 +114,7 @@ impl State {
                         });
                     match spawn_result {
                         Ok(output) => {
+                            eprintln!("{}: Executed program '{}'.", PREPROCESSOR_NAME, program);
                             let actual_exit_status = output.status.code().unwrap_or(1);
                             if actual_exit_status != desired_exit_status {
                                 self.error = Some(

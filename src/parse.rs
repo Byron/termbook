@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::env::current_dir;
 use termbook::mdbook::errors::Error;
 
-use types::BuildContext;
+use types::{BuildContext, PlaybackContext};
 
 pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error> {
     let shell = args.value_of("shell")
@@ -27,6 +27,14 @@ pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error
     Ok(())
 }
 
+pub fn playback_context_from(args: &ArgMatches) -> Result<PlaybackContext, Error> {
+    Ok(PlaybackContext {
+        path: args.value_of_os("path")
+            .map(Path::new)
+            .map(Into::into)
+            .unwrap_or_else(|| current_dir().expect("current dir available")),
+    })
+}
 pub fn build_context_from(args: &ArgMatches) -> Result<BuildContext, Error> {
     Ok(BuildContext {
         path: args.value_of_os("path")

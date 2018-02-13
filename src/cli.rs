@@ -21,6 +21,13 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                 arg
             }
         });
+    let book_path = Arg::with_name("path")
+        .required(false)
+        .value_name("path-to-mdbook")
+        .help(
+            "The path to the mdbook to render. If unset, the current working directory \
+             is expected to contain an mdbook configuration file.",
+        );
     let build = App::new("build")
         .about(
             "Build the `mdbook` compatible book in the current working directory \
@@ -38,15 +45,13 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                      It's useful to review the preprocessor result.",
                 ),
         )
-        .arg(
-            Arg::with_name("path")
-                .required(false)
-                .value_name("path-to-mdbook")
-                .help(
-                    "The path to the mdbook to render. If unset, the current working directory \
-                     is expected to contain an mdbook configuration file.",
-                ),
-        );
+        .arg(book_path.clone());
 
-    app.subcommand(build).subcommand(completions)
+    let playback = App::new("playback")
+        .help("Playback documentation by emulating a fast human typist.")
+        .arg(book_path);
+
+    app.subcommand(build)
+        .subcommand(playback)
+        .subcommand(completions)
 }

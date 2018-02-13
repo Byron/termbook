@@ -27,12 +27,20 @@ enum Action {
 impl Action {
     fn from_str(program: &str, key: &str, val: Option<&str>) -> Result<Option<Action>, Error> {
         Ok(match key {
-            "hide" => Some(Action::Hide),
+            "hide" => {
+                if let Some(v) = val {
+                    return Err(format!(
+                        "Encountered value '{}' on 'hide' tag, which is not allowed.",
+                        v
+                    ).into());
+                };
+                Some(Action::Hide)
+            }
             "use" => Some(Action::Use(val.map(ToOwned::to_owned).ok_or_else(|| {
-                Error::from("'Use' steps need a name, like 'use=name'.")
+                Error::from("'Use' tags need a name, like 'use=name'.")
             })?)),
             "prepare" => Some(Action::Prepare(val.map(ToOwned::to_owned).ok_or_else(
-                || Error::from("'Prepare' steps need a name, like 'prepare=name'."),
+                || Error::from("'Prepare' tags need a name, like 'prepare=name'."),
             )?)),
             "exec" => Some(Action::Exec {
                 program: program.to_owned(),

@@ -1,3 +1,3 @@
 error: run-code-blocks: Preprocessing failed for chapter 'Introduction' in file 'index.md'.
 Caused by: 
- 1: 'Prepare' tags need a name, like 'prepare=name'.
+ 1: Encountered value 'no-name-allowed' on 'hide' tag, which is not allowed.

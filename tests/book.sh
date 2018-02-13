@@ -142,6 +142,14 @@ title "termbook build"
     )
     
     (with "'hide' marker"
+      (when "used on with a name"
+        make-book "$fixture/books/hide-with-name.md"
+        
+        it "failse" && {
+          WITH_SNAPSHOT="$snapshot/hide-with-name" \
+          expect_run $WITH_FAILURE "${args[@]}" $BOOK
+        }
+      )
       (when "used on an 'exec' block"
         make-book "$fixture/books/hide-on-exec.md"
         

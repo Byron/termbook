@@ -1,17 +1,22 @@
 sudo: required
-
 os:
   - linux
-
 language: rust
-
 rust:
   - stable
-
 cache:
   - cargo
-
 script:
-  - cargo doc
-  - cargo test --all
   - make stateless-journey-tests
+  - make docs
+deploy:
+  provider: pages
+  skip-cleanup: true
+  local-dir: doc/book
+  github-token: "$GITHUB_TOKEN"
+  on:
+    repo: Byron/termbook
+    branch: master
+env:
+  global:
+    secure: gRfVsUkRew4yQE0UrzTLih06+otLOKSm61hRqvVrw9A+BPlE/cxT96N0H89N6+xnSF6ye+gdB12KIq0qeCSG76l3SqL6X2Y00vMn5TAd/KjSgQ++A58V6fgYZnfjg4OvEx4vd76jz8OTu1HpITKLLL9zovdHur8hF3Cn7Y7/p6ROc3T0u0pzMwdbC2fj4+/OFhNt3Hj15LNvp/I5NAN8dewlke8ukgaN4sNnJNxgZkf1sKVBID4+f994G7kbCmdStMU04aHH0/T5j2vWqhxcOKS6xJuos3R9MpSefoOvrotYX7/iFubEjVzzny42lsoUBmw6JXi0xRyCCjbsv4WLWLnTFP+wAUgckZKunuAaZYfeysK7OnpbPRZ5rDtp64iRcssa5yYZWGfE8EXXlRMNfuNvNQEIzYsaHgseWh1W1oc1DeCE9GazOnmP3BNfLuDeV7qEAI29Zrt59QMkA3U1btHHRPhRa/GRBePWsh+1OSUjzTO8D4fSF/4Onx+ld/KJs62QH0w6w7xf7e6Wfm05+vUTYob6cRyr22ULdjrhp8UyMuKaEGtJtJIV4aLZu7WERYXx3x4v4EyYYph+u9Td2Pgk3xFZ/BOkWNaN5W7yc9qaxS7UvFnCe+yli7QR4uPk6Pm8ILirKFk5VzyATm+w6lcNU+enPcqtqvUPAzJJSCQ=

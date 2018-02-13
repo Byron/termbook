@@ -91,7 +91,7 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
 
-    let mut res = Some(vec![event.clone()]);
+    let mut res = vec![event.clone()];
     let hide = match event {
         Start(CodeBlock(ref info)) => {
             state.actions = match parse_actions(info) {
@@ -157,21 +157,14 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
                                         ).into(),
                                     );
                                 } else {
-                                    res = res.map(|mut v| {
-                                        v.push(Start(CodeBlock("output".into())));
-                                        v.push(Text(
-                                            String::from_utf8_lossy(&output.stdout)
-                                                .into_owned()
-                                                .into(),
-                                        ));
-                                        v.push(Text(
-                                            String::from_utf8_lossy(&output.stderr)
-                                                .into_owned()
-                                                .into(),
-                                        ));
-                                        v.push(End(CodeBlock("output".into())));
-                                        v
-                                    });
+                                    res.push(Start(CodeBlock("output".into())));
+                                    res.push(Text(
+                                        String::from_utf8_lossy(&output.stdout).into_owned().into(),
+                                    ));
+                                    res.push(Text(
+                                        String::from_utf8_lossy(&output.stderr).into_owned().into(),
+                                    ));
+                                    res.push(End(CodeBlock("output".into())));
                                 }
                             }
                             Err(e) => state.error = Some(e),
@@ -187,10 +180,9 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
         _ => state.should_hide(),
     };
     if hide {
-        None
-    } else {
-        res
+        res.clear();
     }
+    Some(res)
 }
 
 fn process_chapter(item: &mut BookItem) -> Result<(), Error> {

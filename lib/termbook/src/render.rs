@@ -31,7 +31,7 @@ impl Renderer for Rewrite {
                     .create(true)
                     .open(&output_file)?;
                 fout.write_all(chapter.content.as_bytes())?;
-                eprintln!("Wrote markdown file at '{}'.", output_file.display());
+                eprintln!("Wrote markdown file at '{}'.", chapter.path.display());
             }
         }
         Ok(())

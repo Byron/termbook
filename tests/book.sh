@@ -157,6 +157,7 @@ title "termbook build"
         make-book "$fixture/books/hide-on-prepare.md"
         
         it "succeeds" && {
+          WITH_SNAPSHOT="$snapshot/hide-on-prepare" \
           expect_run $SUCCESSFULLY "${args[@]}" $BOOK
         }
         

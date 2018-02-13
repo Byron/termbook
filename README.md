@@ -6,7 +6,7 @@
 
 This allows to write testable documentation for command-line interfaces.
 
-It came to life for the documentation needs of [share-secrets-safely][sheesy]
+It came to life for the documentation needs of [share-secrets-safely][sheesy].
 
 [mdbook]: https://github.com/rust-lang-nursery/mdBook
 [sheesy]: https://github.com/Byron/share-secrets-safely

@@ -8,7 +8,7 @@ just yet.
 
 ## Features 
 
-`termbook` can a few unique things for you
+`termbook` can do a few unique things for you
 
  * **execute codeblocks**
    * This makes your documentation executable, with the output captured in their

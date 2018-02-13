@@ -1,2 +1,2 @@
-run-code-blocks: Executed program 'bash'.
+run-code-blocks: Executed program 'bash' with '"echo \'one\'\necho \'with hidden preprare\'\n"'.
 Wrote markdown file at 'index.md'.

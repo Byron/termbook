@@ -114,7 +114,10 @@ impl State {
                         });
                     match spawn_result {
                         Ok(output) => {
-                            eprintln!("{}: Executed program '{}'.", PREPROCESSOR_NAME, program);
+                            eprintln!(
+                                "{}: Executed program '{}' with '{:?}'.",
+                                PREPROCESSOR_NAME, program, self.code
+                            );
                             let actual_exit_status = output.status.code().unwrap_or(1);
                             if actual_exit_status != desired_exit_status {
                                 self.error = Some(

@@ -58,7 +58,7 @@ function tb() { termbook; };
 ```
 
 ```bash,use=alias,exec=1
-tb --help
+tb
 ```
 
 ### hide
@@ -80,7 +80,7 @@ function tb() { termbook; };
 ```
 
 ```bash,use=alias,exec=1
-tb --help
+tb
 ```
 
 If `hide` is used on an `exec` block, itself and its output are hidden entirely.

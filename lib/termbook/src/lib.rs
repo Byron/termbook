@@ -11,10 +11,10 @@ mod preprocess;
 
 pub use render::*;
 pub use preprocess::*;
-pub use mdbook::errors::Error;
+pub use mdbook::errors::{Error, ResultExt};
 
 pub fn new(dir: &Path) -> MdBookResult<MDBook> {
     let mut md = MDBook::load(dir)?;
-    md.with_preprecessor(RunShellScript);
+    md.with_preprecessor(RunCodeBlocks);
     Ok(md)
 }

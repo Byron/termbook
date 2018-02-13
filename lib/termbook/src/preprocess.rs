@@ -9,7 +9,9 @@ use pulldown_cmark_to_cmark::fmt::cmark;
 use std::process::{Child, Command, Stdio};
 use std::io::Write;
 
-pub struct RunShellScript;
+pub struct RunCodeBlocks;
+
+const PREPROCESSOR_NAME: &'static str = "run-code-blocks";
 
 enum Action {
     Exec {
@@ -111,7 +113,8 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
                                 if actual_exit_status != desired_exit_status {
                                     state.error = Some(
                                         format!(
-                                            "Expected exit status '{}' to be '{}'",
+                                            "After running '{}': Expected exit status '{}' to be '{}'",
+                                            program,
                                             actual_exit_status, desired_exit_status
                                         ).into(),
                                     );
@@ -157,16 +160,23 @@ fn process_chapter(item: &mut BookItem) -> Result<(), Error> {
             md
         };
         if let Some(err) = state.error {
-            return Err(err);
+            return Err(err.chain_err(|| {
+                format!(
+                    "{}: Preprocessing failed for chapter '{}' in file '{}'.",
+                    PREPROCESSOR_NAME,
+                    chapter.name,
+                    chapter.path.display()
+                )
+            }));
         }
         chapter.content = md;
     }
     Ok(())
 }
 
-impl Preprocessor for RunShellScript {
+impl Preprocessor for RunCodeBlocks {
     fn name(&self) -> &str {
-        "run_shell_scripts"
+        PREPROCESSOR_NAME
     }
 
     fn run(&self, _ctx: &PreprocessorContext, book: &mut Book) -> MdBookResult<()> {

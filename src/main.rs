@@ -14,7 +14,7 @@ use termbook::Error;
 use clap::ArgMatches;
 use std::io::{stderr, Write};
 
-pub fn print_causes<E, W>(e: E, mut w: W)
+fn print_causes<E, W>(e: E, mut w: W)
 where
     E: Into<Error>,
     W: Write,

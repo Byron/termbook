@@ -1,1 +1,3 @@
-error: Failed to parse integer from 'foo' for 'exec' key with error: invalid digit found in string
+error: run-code-blocks: Preprocessing failed for chapter 'Introduction' in file 'index.md'.
+Caused by: 
+ 1: Failed to parse integer from 'foo' for 'exec' key with error: invalid digit found in string

@@ -1,16 +1,15 @@
-use failure::{Error, ResultExt};
 use clap::{App, ArgMatches, Shell};
 use std::path::Path;
-use failure::err_msg;
 use std::io::stdout;
 use std::str::FromStr;
 use std::env::current_dir;
+use termbook::Error;
 
 use types::BuildContext;
 
 pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error> {
     let shell = args.value_of("shell")
-        .ok_or_else(|| err_msg("expected 'shell' argument"))
+        .ok_or_else(|| "expected 'shell' argument".into())
         .map(|s| {
             Path::new(s)
                 .file_name()
@@ -21,10 +20,7 @@ pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error
                 .unwrap_or(s)
         })
         .and_then(|s| {
-            Shell::from_str(s)
-                .map_err(err_msg)
-                .context(format!("The shell '{}' is unsupported", s))
-                .map_err(Into::into)
+            Shell::from_str(s).map_err(|_| Error::from(format!("The shell '{}' is unsupported", s)))
         })?;
     let app_name = app.get_name().to_owned();
     app.gen_completions_to(app_name, shell, &mut stdout());

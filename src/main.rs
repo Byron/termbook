@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate clap;
 #[macro_use]
-extern crate failure;
-#[macro_use]
 extern crate lazy_static;
 extern crate termbook;
 
@@ -11,9 +9,9 @@ mod parse;
 mod types;
 
 use std::process;
+use termbook::Error;
 
 use clap::ArgMatches;
-use failure::Error;
 use std::io::{stderr, Write};
 
 pub fn print_causes<E, W>(e: E, mut w: W)
@@ -22,7 +20,7 @@ where
     W: Write,
 {
     let e = e.into();
-    let causes = e.causes().collect::<Vec<_>>();
+    let causes = e.iter().collect::<Vec<_>>();
     let num_causes = causes.len();
     for (index, cause) in causes.iter().enumerate() {
         if index == 0 {
@@ -35,6 +33,7 @@ where
         }
     }
 }
+
 fn usage_and_exit(args: &ArgMatches) -> ! {
     println!("{}", args.usage());
     process::exit(1)
@@ -65,11 +64,11 @@ fn main() {
         }
         ("build", Some(args)) => {
             let ctx = ok_or_exit(parse::build_context_from(&args));
-            let mut book = ok_or_exit(termbook::new(&ctx.path).map_err(|e| format_err!("{}", e)));
+            let mut book = ok_or_exit(termbook::new(&ctx.path));
             if ctx.rewrite {
                 book.with_renderer(termbook::Rewrite::new());
             }
-            ok_or_exit(book.build().map_err(|e| format_err!("{}", e)))
+            ok_or_exit(book.build());
         }
         _ => usage_and_exit(&matches),
     };

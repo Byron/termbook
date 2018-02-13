@@ -11,6 +11,7 @@ mod preprocess;
 
 pub use render::*;
 pub use preprocess::*;
+pub use mdbook::errors::Error;
 
 pub fn new(dir: &Path) -> MdBookResult<MDBook> {
     let mut md = MDBook::load(dir)?;

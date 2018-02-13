@@ -11,19 +11,14 @@ It came to life for the documentation needs of [share-secrets-safely][sheesy]
 [mdbook]: https://github.com/rust-lang-nursery/mdBook
 [sheesy]: https://github.com/Byron/share-secrets-safely
 
+### Installation
+
+Installation documentation can [be found here][installation-docs].
+
+[installation-docs]: https://byron.github.io/termbook/cli/installation.html#installation
+
 ### Roadmap
 
-#### `termbook` and `termbook-cli` - minimal viable product
-
-Termbook will be tested on a high-level comprised mostly of journey tests. The CLI
-will support
-
- * `build`ing an `mdbook` 
-   * It's similar to `mdbook build`, but with a preprocessor to execute bash scripts
-     and collect their output.
-   * this can also be run on CI to not only create the book, but to assure your bash
-     code examples are still working.
-     
 #### `termbook interactive` and `asciinema`
 
 Pretty-print (chapters of) an `mdbook` to the terminal, similar to [`mdcat`][mdcat],
@@ -44,3 +39,5 @@ That should make recordings reproducible.
  * run `cargo publish` for the library and the CLI
  * run `git tag -s <version>`
  * run `git push --tags origin master`
+ 
+documentation is updated on each push to master.

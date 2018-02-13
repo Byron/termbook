@@ -140,6 +140,31 @@ title "termbook build"
         }
       )
     )
+    
+    (with "'hide' marker"
+      (when "used on an 'exec' block"
+        make-book "$fixture/books/hide-on-exec.md"
+        
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" $BOOK
+        }
+        
+        it "hides the 'exec' block and its output" && {
+          expect_snapshot "$snapshot/book-hide-on-exec" "$OUTPUT_DIR/markdown-rewrite" 
+        }
+      )
+      (when "used on a 'prepare' block with an non-hidden exec block"
+        make-book "$fixture/books/hide-on-prepare.md"
+        
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" $BOOK
+        }
+        
+        it "hides the prepare block only" && {
+          expect_snapshot "$snapshot/book-hide-on-prepare" "$OUTPUT_DIR/markdown-rewrite" 
+        }
+      )
+    )
   )
 )
 

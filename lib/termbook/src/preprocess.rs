@@ -19,6 +19,7 @@ enum Action {
         program: String,
         desired_exit_status: i32,
     },
+    Hide,
     Prepare(String),
     Use(String),
 }
@@ -26,6 +27,7 @@ enum Action {
 impl Action {
     fn from_str(program: &str, key: &str, val: Option<&str>) -> Result<Option<Action>, Error> {
         Ok(match key {
+            "hide" => Some(Action::Hide),
             "use" => Some(Action::Use(val.map(ToOwned::to_owned).ok_or_else(|| {
                 Error::from("'Use' steps need a name, like 'use=name'.")
             })?)),
@@ -57,6 +59,14 @@ struct State {
     prepare: HashMap<String, String>,
 }
 
+impl State {
+    fn should_hide(&self) -> bool {
+        self.actions
+            .iter()
+            .any(|a| if let &Action::Hide = a { true } else { false })
+    }
+}
+
 fn parse_actions(info: &str) -> Result<Vec<Action>, Error> {
     let mut res = Vec::new();
     let mut shell = "bash";
@@ -81,7 +91,8 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
 
-    match event {
+    let mut res = Some(vec![event.clone()]);
+    let hide = match event {
         Start(CodeBlock(ref info)) => {
             state.actions = match parse_actions(info) {
                 Ok(a) => a,
@@ -90,15 +101,18 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
                     Vec::new()
                 }
             };
+            state.should_hide()
         }
         Text(ref text) => {
             if !state.actions.is_empty() {
                 state.code.push_str(text);
             }
+            state.should_hide()
         }
         End(CodeBlock(_)) => {
             for action in &state.actions {
                 match *action {
+                    Action::Hide => {}
                     Action::Use(ref id) => match state.prepare.get(id) {
                         Some(code) => state.code.insert_str(0, code),
                         None => {
@@ -143,18 +157,21 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
                                         ).into(),
                                     );
                                 } else {
-                                    let mut events = Vec::new();
-                                    events.push(event);
-
-                                    events.push(Start(CodeBlock("output".into())));
-                                    events.push(Text(
-                                        String::from_utf8_lossy(&output.stdout).into_owned().into(),
-                                    ));
-                                    events.push(Text(
-                                        String::from_utf8_lossy(&output.stderr).into_owned().into(),
-                                    ));
-                                    events.push(End(CodeBlock("output".into())));
-                                    return Some(events);
+                                    res = res.map(|mut v| {
+                                        v.push(Start(CodeBlock("output".into())));
+                                        v.push(Text(
+                                            String::from_utf8_lossy(&output.stdout)
+                                                .into_owned()
+                                                .into(),
+                                        ));
+                                        v.push(Text(
+                                            String::from_utf8_lossy(&output.stderr)
+                                                .into_owned()
+                                                .into(),
+                                        ));
+                                        v.push(End(CodeBlock("output".into())));
+                                        v
+                                    });
                                 }
                             }
                             Err(e) => state.error = Some(e),
@@ -162,12 +179,18 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
                     }
                 }
             }
+            let hide = state.should_hide();
             state.actions.clear();
             state.code.clear();
+            hide
         }
-        _ => {}
+        _ => state.should_hide(),
     };
-    Some(vec![event])
+    if hide {
+        None
+    } else {
+        res
+    }
 }
 
 fn process_chapter(item: &mut BookItem) -> Result<(), Error> {

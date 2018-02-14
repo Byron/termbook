@@ -16,7 +16,7 @@ echo 'this is being executed in bash'
 ```
 ````
 
-By default `exec` expects the executed program to suceed (with exit-status 0), 
+By default `exec` expects the executed program to succeed (with exit-status 0), 
 and the entire `termbook build` invocation will fail otherwise. This behaviour
 is useful to assert your documentation is still matching the program you document.
 

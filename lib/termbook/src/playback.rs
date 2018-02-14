@@ -46,10 +46,13 @@ where
 {
     fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
         if self.is_a_tty {
-            sleep(Duration::from_millis(20));
-            let res = self.inner.write(buf);
-            self.inner.flush().ok();
-            res
+            let delay_per_character = Duration::from_millis(20);
+            for b in buf {
+                sleep(delay_per_character);
+                self.inner.write(&[*b])?;
+                self.inner.flush().ok();
+            }
+            Ok(buf.len())
         } else {
             self.inner.write(buf)
         }

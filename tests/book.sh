@@ -30,6 +30,20 @@ title "termbook completions"
   )
 )
 
+title "termbook playback"
+(sandboxed
+  args=("$exe" playback)
+  
+  (when "given a simple book"
+    make-book "$fixture/books/no-markers.md"
+
+    it "succeeds and prints out everything nicely" && {
+      WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+      expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+    }
+  )
+)
+
 title "termbook build"
 (sandboxed
   (with "rewrite enabled"

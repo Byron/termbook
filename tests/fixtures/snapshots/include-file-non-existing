@@ -1,0 +1,4 @@
+error: run-code-blocks: Preprocessing failed for chapter 'Introduction' in file 'index.md'.
+Caused by: 
+ 2: include-file=some-non-existing-file.md failed as the file at 'include-file-non-existing/some-non-existing-file.md' could not be opened
+ 1: No such file or directory (os error 2)

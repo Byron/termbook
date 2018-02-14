@@ -7,8 +7,10 @@ use pulldown_cmark::{Event, Parser};
 use pulldown_cmark_to_cmark::fmt::cmark;
 
 use std::process::{Child, Command, Stdio};
-use std::io::Write;
+use std::io::{Read, Write};
 use std::collections::HashMap;
+use std::path::PathBuf;
+use std::fs::File;
 
 /// A preprocessor which runs specifically tagged codeblocks.
 pub struct RunCodeBlocks;
@@ -22,6 +24,7 @@ enum Action {
     },
     Hide,
     Prepare(String),
+    IncludeFile(PathBuf),
     Use(String),
 }
 
@@ -38,10 +41,17 @@ impl Action {
                 Some(Action::Hide)
             }
             "use" => Some(Action::Use(val.map(ToOwned::to_owned).ok_or_else(|| {
-                Error::from("'Use' tags need a name, like 'use=name'.")
+                Error::from("'use' tags need a name, like 'use=name'.")
             })?)),
             "prepare" => Some(Action::Prepare(val.map(ToOwned::to_owned).ok_or_else(
-                || Error::from("'Prepare' tags need a name, like 'prepare=name'."),
+                || Error::from("'prepare' tags need a name, like 'prepare=name'."),
+            )?)),
+            "include-file" => Some(Action::IncludeFile(val.map(PathBuf::from).ok_or_else(
+                || {
+                    Error::from(
+                        "'include-file' tags need a file name, like 'include-file=../file.md'.",
+                    )
+                },
             )?)),
             "exec" => Some(Action::Exec {
                 program: program.to_owned(),
@@ -66,18 +76,24 @@ struct State {
     code: String,
     error: Option<Error>,
     prepare: HashMap<String, String>,
+    book_root: PathBuf,
 }
 
 impl State {
+    fn is_in_marked_codeblock(&self) -> bool {
+        !self.actions.is_empty()
+    }
+
     fn should_hide(&self) -> bool {
         self.actions
             .iter()
             .any(|a| if let &Action::Hide = a { true } else { false })
     }
 
-    fn apply_actions(&mut self, events: &mut Vec<Event>) {
+    fn apply_end_tag_actions(&mut self, events: &mut Vec<Event>) {
         for action in &self.actions {
             match *action {
+                Action::IncludeFile(_) => {}
                 Action::Hide => {}
                 Action::Use(ref id) => match self.prepare.get(id) {
                     Some(code) => self.code.insert_str(0, code),
@@ -185,13 +201,33 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
             state.should_hide()
         }
         Text(ref text) => {
-            if !state.actions.is_empty() {
+            if state.is_in_marked_codeblock() {
                 state.code.push_str(text);
+                for action in &state.actions {
+                    if let Action::IncludeFile(ref path) = *action {
+                        let mut buf = String::new();
+                        let file_path = state.book_root.join(path);
+                        match File::open(&file_path) {
+                            Ok(mut f) => match f.read_to_string(&mut buf) {
+                                Ok(_) => {
+                                    state.code.push_str(&buf);
+                                    res[0] = Text(state.code.clone().into());
+                                }
+                                Err(e) => state.error = Some(e.into()),
+                            },
+                            Err(e) => {
+                                state.error = Some(Error::from(e).chain_err(|| {
+                                    format!("include-file={} failed as the file at '{}' could not be opened", path.display(), file_path.display())
+                                }))
+                            }
+                        }
+                    }
+                }
             }
             state.should_hide()
         }
         End(CodeBlock(_)) => {
-            state.apply_actions(&mut res);
+            state.apply_end_tag_actions(&mut res);
             let hide = state.should_hide();
             state.actions.clear();
             state.code.clear();
@@ -205,8 +241,10 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
     Some(res)
 }
 
-fn process_chapter(item: &mut BookItem) -> Result<()> {
+fn process_chapter(ctx: &PreprocessorContext, item: &mut BookItem) -> Result<()> {
     let mut state = State::default();
+    state.book_root = ctx.root.clone();
+
     if let &mut BookItem::Chapter(ref mut chapter) = item {
         let md = {
             let mut md = String::with_capacity(chapter.content.len() + 128);
@@ -238,13 +276,13 @@ impl Preprocessor for RunCodeBlocks {
         PREPROCESSOR_NAME
     }
 
-    fn run(&self, _ctx: &PreprocessorContext, book: &mut Book) -> Result<()> {
+    fn run(&self, ctx: &PreprocessorContext, book: &mut Book) -> Result<()> {
         let mut result = Ok(());
         book.for_each_mut(|item: &mut BookItem| {
             if result.is_err() {
                 return;
             }
-            if let Err(err) = process_chapter(item) {
+            if let Err(err) = process_chapter(ctx, item) {
                 result = Err(err);
             }
         });

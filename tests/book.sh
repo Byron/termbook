@@ -34,6 +34,37 @@ title "termbook build"
 (sandboxed
   (with "rewrite enabled"
     args=("$exe" build --rewrite)
+
+    (with "an 'include-file' codeblock"
+      (with "a an non-existing file"
+        make-book "$fixture/books/include-file-non-existing.md"
+
+        it "fails with an error" && {
+          WITH_SNAPSHOT="$snapshot/include-file-non-existing" \
+          expect_run $WITH_FAILURE "${args[@]}" "$BOOK"
+        }
+      )
+
+      (with "a an existing file relative to the book"
+        make-book "$fixture/books/include-file-existing.md"
+        cat <<'EOF' > "$BOOK/../outside-of-book.md"
+```rust
+fn included_from_file() {
+
+}
+```
+EOF
+
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+        }
+
+        it "wrote the included file into the codeblock" && {
+          expect_snapshot "$snapshot/include-file-existing" "$OUTPUT_DIR/markdown-rewrite"
+        }
+      )
+    )
+
     (with "no specifically marked code blocks"
       make-book "$fixture/books/no-markers.md"
       it "succeeds" && {

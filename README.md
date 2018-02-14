@@ -2,7 +2,7 @@
 [![dependency status](https://deps.rs/repo/github/byron/termbook/status.svg)](https://deps.rs/repo/github/byron/termbook)
 
 `termbook` is a command-line tool to build [`mdbook`'s][mdbook] while executing
-`bash` codeblocks and collecting their output to become part of the `mdbook`.
+codeblocks and collecting their output to become part of the `mdbook`.
 
 This allows to write testable documentation for command-line interfaces.
 

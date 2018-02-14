@@ -90,10 +90,34 @@ impl State {
             .any(|a| if let &Action::Hide = a { true } else { false })
     }
 
-    fn apply_end_tag_actions(&mut self, events: &mut Vec<Event>) {
+    fn apply_end_of_codeblock_actions(&mut self, events: &mut Vec<Event>) {
         for action in &self.actions {
             match *action {
-                Action::IncludeFile(_) => {}
+                Action::IncludeFile(ref path) => {
+                    let mut buf = String::new();
+                    let file_path = self.book_root.join(path);
+                    match File::open(&file_path) {
+                        Ok(mut f) => match f.read_to_string(&mut buf) {
+                            Ok(_) => {
+                                self.code.push_str(&buf);
+                                let pos = events.len() - 1;
+                                events.insert(pos, Event::Text(buf.into()));
+                            }
+                            Err(e) => {
+                                self.error = Some(Error::from(e).chain_err(|| {
+                                    format!("Could not read file at '{}'", file_path.display())
+                                }))
+                            }
+                        },
+                        Err(e) => {
+                            self.error = Some(Error::from(e).chain_err(|| {
+                                format!(
+                                "include-file={} failed as the file at '{}' could not be opened",
+                                path.display(), file_path.display())
+                            }))
+                        }
+                    }
+                }
                 Action::Hide => {}
                 Action::Use(ref id) => match self.prepare.get(id) {
                     Some(code) => self.code.insert_str(0, code),
@@ -203,31 +227,11 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
         Text(ref text) => {
             if state.is_in_marked_codeblock() {
                 state.code.push_str(text);
-                for action in &state.actions {
-                    if let Action::IncludeFile(ref path) = *action {
-                        let mut buf = String::new();
-                        let file_path = state.book_root.join(path);
-                        match File::open(&file_path) {
-                            Ok(mut f) => match f.read_to_string(&mut buf) {
-                                Ok(_) => {
-                                    state.code.push_str(&buf);
-                                    res[0] = Text(state.code.clone().into());
-                                }
-                                Err(e) => state.error = Some(e.into()),
-                            },
-                            Err(e) => {
-                                state.error = Some(Error::from(e).chain_err(|| {
-                                    format!("include-file={} failed as the file at '{}' could not be opened", path.display(), file_path.display())
-                                }))
-                            }
-                        }
-                    }
-                }
             }
             state.should_hide()
         }
         End(CodeBlock(_)) => {
-            state.apply_end_tag_actions(&mut res);
+            state.apply_end_of_codeblock_actions(&mut res);
             let hide = state.should_hide();
             state.actions.clear();
             state.code.clear();

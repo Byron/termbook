@@ -62,7 +62,7 @@ fn main() {
             ok_or_exit(parse::generate_completions(appc, &args));
             process::exit(0);
         }
-        ("playback", Some(args)) => {
+        ("play", Some(args)) => {
             let ctx = ok_or_exit(parse::playback_context_from(&args));
             let mut book = ok_or_exit(termbook::load(&ctx.path));
             book.with_renderer(termbook::Playback::new(ctx.chars_per_second));

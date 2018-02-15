@@ -32,7 +32,7 @@ title "termbook completions"
 
 title "termbook playback"
 (sandboxed
-  args=("$exe" playback)
+  args=("$exe" play)
   
   (when "given a simple book"
     make-book "$fixture/books/no-markers.md"

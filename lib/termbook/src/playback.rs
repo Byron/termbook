@@ -19,7 +19,9 @@ pub struct Playback {
 impl Playback {
     pub fn new(characters_per_second: usize) -> Playback {
         Playback {
-            delay_per_character: Duration::from_millis((1000.0 / characters_per_second as f32) as u64),
+            delay_per_character: Duration::from_millis(
+                (1000.0 / characters_per_second as f32) as u64,
+            ),
         }
     }
 }
@@ -75,20 +77,21 @@ impl Renderer for Playback {
 
     fn render(&self, ctx: &RenderContext) -> Result<(), Error> {
         let cd = current_dir()?;
+        let mut events = Vec::new();
         for item in ctx.book.iter() {
             if let &BookItem::Chapter(ref chapter) = item {
-                let syntax_set = SyntaxSet::load_defaults_newlines();
-                push_tty(
-                    &mut DelayPrinter::new(stdout(), self.delay_per_character.clone()),
-                    Terminal::detect(),
-                    TerminalSize::detect().unwrap_or_default(),
-                    Parser::new(&chapter.content),
-                    &cd,
-                    ResourceAccess::LocalOnly,
-                    syntax_set,
-                ).map_err(|e| Error::from(format!("{}", e)))?;
+                events.extend(Parser::new(&chapter.content));
             }
         }
+        push_tty(
+            &mut DelayPrinter::new(stdout(), self.delay_per_character.clone()),
+            Terminal::detect(),
+            TerminalSize::detect().unwrap_or_default(),
+            events.into_iter(),
+            &cd,
+            ResourceAccess::LocalOnly,
+            SyntaxSet::load_defaults_newlines(),
+        ).map_err(|e| Error::from(format!("{}", e)))?;
         Ok(())
     }
 }

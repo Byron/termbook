@@ -2,7 +2,7 @@ use mdbook::renderer::{RenderContext, Renderer};
 use mdbook::book::BookItem;
 use mdbook::errors::Error;
 use syntect::parsing::SyntaxSet;
-use pulldown_cmark::Parser;
+use pulldown_cmark::{Event, Parser, Tag};
 
 use mdcat::{push_tty, ResourceAccess, Terminal, TerminalSize};
 use atty::{self, Stream};
@@ -80,6 +80,16 @@ impl Renderer for Playback {
         let mut events = Vec::new();
         for item in ctx.book.iter() {
             if let &BookItem::Chapter(ref chapter) = item {
+                events.push(Event::Start(Tag::Rule));
+                events.push(Event::End(Tag::Rule));
+                events.push(Event::Start(Tag::Strong));
+                if let Some(ref section_number) = chapter.number {
+                    events.push(Event::Text(format!("{}", section_number).into()))
+                }
+                events.push(Event::Text(chapter.name.clone().into()));
+                events.push(Event::End(Tag::Strong));
+                events.push(Event::Start(Tag::Rule));
+                events.push(Event::End(Tag::Rule));
                 events.extend(Parser::new(&chapter.content));
             }
         }

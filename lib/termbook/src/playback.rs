@@ -12,11 +12,15 @@ use std::env::current_dir;
 use std::thread::sleep;
 use std::time::Duration;
 
-pub struct Playback;
+pub struct Playback {
+    delay_per_character: Duration,
+}
 
 impl Playback {
-    pub fn new() -> Playback {
-        Playback
+    pub fn new(characters_per_second: usize) -> Playback {
+        Playback {
+            delay_per_character: Duration::from_millis((1000.0 / characters_per_second as f32) as u64),
+        }
     }
 }
 
@@ -25,6 +29,7 @@ where
     W: Write,
 {
     is_a_tty: bool,
+    delay_per_character: Duration,
     inner: W,
 }
 
@@ -32,8 +37,9 @@ impl<W> DelayPrinter<W>
 where
     W: Write,
 {
-    fn new(w: W) -> DelayPrinter<W> {
+    fn new(w: W, delay_per_character: Duration) -> DelayPrinter<W> {
         DelayPrinter {
+            delay_per_character,
             inner: w,
             is_a_tty: atty::is(Stream::Stdout),
         }
@@ -46,9 +52,8 @@ where
 {
     fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
         if self.is_a_tty {
-            let delay_per_character = Duration::from_millis(20);
             for b in buf {
-                sleep(delay_per_character);
+                sleep(self.delay_per_character);
                 self.inner.write(&[*b])?;
                 self.inner.flush().ok();
             }
@@ -74,7 +79,7 @@ impl Renderer for Playback {
             if let &BookItem::Chapter(ref chapter) = item {
                 let syntax_set = SyntaxSet::load_defaults_newlines();
                 push_tty(
-                    &mut DelayPrinter::new(stdout()),
+                    &mut DelayPrinter::new(stdout(), self.delay_per_character.clone()),
                     Terminal::detect(),
                     TerminalSize::detect().unwrap_or_default(),
                     Parser::new(&chapter.content),

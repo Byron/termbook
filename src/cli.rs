@@ -49,6 +49,13 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
 
     let playback = App::new("playback")
         .help("Playback documentation by emulating a fast human typist.")
+        .arg(
+            Arg::with_name("cps")
+                .long("characters-per-second")
+                .required(false)
+                .default_value("50")
+                .help("The amount of characters printed per second."),
+        )
         .arg(book_path);
 
     app.subcommand(build)

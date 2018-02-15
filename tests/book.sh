@@ -36,11 +36,21 @@ title "termbook playback"
   
   (when "given a simple book"
     make-book "$fixture/books/no-markers.md"
+    
+    (with "default arguments"
 
-    it "succeeds and prints out everything nicely" && {
-      WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
-      expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
-    }
+      it "succeeds and prints out everything nicely" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+      }
+    )
+    
+    (with "characters per second set"
+      it "succeeds and prints out everything nicely" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" --characters-per-second 40 "$BOOK"
+      }
+    )
   )
 )
 

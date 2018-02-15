@@ -29,6 +29,10 @@ pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error
 
 pub fn playback_context_from(args: &ArgMatches) -> Result<PlaybackContext, Error> {
     Ok(PlaybackContext {
+        chars_per_second: args.value_of("cps")
+            .expect("at least default")
+            .parse()
+            .map_err(|e| Error::from(format!("{}", e)))?,
         path: args.value_of_os("path")
             .map(Path::new)
             .map(Into::into)

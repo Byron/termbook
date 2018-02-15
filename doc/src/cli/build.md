@@ -1,5 +1,3 @@
-# The 'build' command
-
 ```bash,exec
 termbook build --help
 ```

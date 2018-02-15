@@ -1,5 +1,3 @@
-# The 'completions' command
-
 ```bash,exec
 termbook completions --help
 ```

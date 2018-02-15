@@ -1,5 +1,3 @@
-# For Developers
-
 `termbook-cli` provides only the command-line interface for the implementation
 contained in the `termbook` library.
 

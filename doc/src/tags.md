@@ -1,5 +1,3 @@
-## CodeBlock Tags
-
 The special feature `termbook build` adds to your capability is that it supports
 various tags that can be added to your codeblocks.
 Tags are executed in the order they occour in the codeblocks, and you can see

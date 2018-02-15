@@ -1,5 +1,3 @@
-# Command-Line Tool
-
 `termbook` is a minimal clone of the `mdbook` command-line tool, and will only
 be required to build the final version of your book as it adds the required
 [`mdbook` preprocessor][mdbook-preprocessor].

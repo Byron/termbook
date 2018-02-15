@@ -628,7 +628,7 @@ dependencies = [
 
 [[package]]
 name = "mdcat"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "atty 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1367,7 +1367,7 @@ version = "1.1.0"
 dependencies = [
  "atty 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "mdbook 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "mdcat 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mdcat 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pulldown-cmark 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pulldown-cmark-to-cmark 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "syntect 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1789,7 +1789,7 @@ dependencies = [
 "checksum log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "89f010e843f2b1a31dbd316b3b8d443758bc634bed37aabade59c686d644e0a2"
 "checksum matches 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "100aabe6b8ff4e4a7e32c1c13523379802df0772b82466207ac25b013f193376"
 "checksum mdbook 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "fef236caad7ba3b5b3944df946f19ab3e190bca53c111dd00fe05fa8d879f2fd"
-"checksum mdcat 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "74c53f9c223aab7ba613113ea6a17ce66a6b8916dd8195c60a0745d061615073"
+"checksum mdcat 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b914eaae2e136a018987c1edd771fcc85080ef0e3798f9cbbba8c6dfb2f6a7fc"
 "checksum memchr 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "796fba70e76612589ed2ce7f45282f5af869e0fdd7cc6199fa1aa1f1d591ba9d"
 "checksum mime 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "ba626b8a6de5da682e1caa06bdb42a335aee5a84db8e5046a3e8ab17ba0a3ae0"
 "checksum mime 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "e2e00e17be181010a91dbfefb01660b17311059dc8c7f48b9017677721e732bd"

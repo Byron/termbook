@@ -14,7 +14,7 @@ documentation = "https://docs.rs/crate/termbook"
 mdbook = "0.1.2"
 pulldown-cmark-to-cmark = "1"
 pulldown-cmark = "0.1.0"
-mdcat = "0.7.0"
+mdcat = "0.8.0"
 syntect = "2.0.0"
 atty = "0.2.6"
 

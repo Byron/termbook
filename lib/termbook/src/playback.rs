@@ -9,8 +9,10 @@ use atty::{self, Stream};
 
 use std::io::{self, stdout, Write};
 use std::env::current_dir;
+use std::fmt::Write as FmtWrite;
 use std::thread::sleep;
 use std::time::Duration;
+use std::str;
 
 pub struct Playback {
     delay_per_character: Duration,
@@ -32,6 +34,7 @@ where
 {
     is_a_tty: bool,
     delay_per_character: Duration,
+    terminal_write_level: usize,
     inner: W,
 }
 
@@ -44,7 +47,12 @@ where
             delay_per_character,
             inner: w,
             is_a_tty: atty::is(Stream::Stdout),
+            terminal_write_level: 0,
         }
+    }
+
+    fn is_not_writing_terminal_escape_code(&self) -> bool {
+        self.terminal_write_level == 0
     }
 }
 
@@ -53,11 +61,24 @@ where
     W: Write,
 {
     fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
-        if self.is_a_tty {
-            for b in buf {
-                sleep(self.delay_per_character);
-                self.inner.write(&[*b])?;
-                self.inner.flush().ok();
+        if buf == &[0x1b, 0x5d] || buf == &[0x1b, 0x5b] {
+            self.terminal_write_level += 1;
+        } else if buf == &[0x07] || buf == &[0x6d] {
+            self.terminal_write_level -= 1;
+        }
+
+        if self.is_a_tty && self.is_not_writing_terminal_escape_code() {
+            match str::from_utf8(buf) {
+                Ok(s) => for c in s.chars() {
+                    sleep(self.delay_per_character);
+                    write!(self.inner, "{}", c)?;
+                    self.inner.flush().ok();
+                },
+                Err(_) => for b in buf {
+                    sleep(self.delay_per_character);
+                    self.inner.write(&[*b])?;
+                    self.inner.flush().ok();
+                },
             }
             Ok(buf.len())
         } else {
@@ -80,16 +101,26 @@ impl Renderer for Playback {
         let mut events = Vec::new();
         for item in ctx.book.iter() {
             if let &BookItem::Chapter(ref chapter) = item {
-                events.push(Event::Start(Tag::Rule));
-                events.push(Event::End(Tag::Rule));
                 events.push(Event::Start(Tag::Strong));
+                let mut buf = String::new();
                 if let Some(ref section_number) = chapter.number {
-                    events.push(Event::Text(format!("{}", section_number).into()))
+                    write!(buf, "{} ", section_number).ok();
                 }
-                events.push(Event::Text(chapter.name.clone().into()));
+                buf.push_str(&chapter.name);
+                let buf_len = buf.len();
+                events.push(Event::Text(
+                    (0..buf_len).map(|_| '=').collect::<String>().into(),
+                ));
+                events.push(Event::SoftBreak);
+                events.push(Event::Text(buf.into()));
+                events.push(Event::SoftBreak);
+                events.push(Event::Text(
+                    (0..buf_len).map(|_| '=').collect::<String>().into(),
+                ));
+                events.push(Event::SoftBreak);
+                events.push(Event::SoftBreak);
                 events.push(Event::End(Tag::Strong));
-                events.push(Event::Start(Tag::Rule));
-                events.push(Event::End(Tag::Rule));
+
                 events.extend(Parser::new(&chapter.content));
             }
         }

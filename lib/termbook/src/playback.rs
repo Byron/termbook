@@ -99,27 +99,28 @@ impl Renderer for Playback {
     fn render(&self, ctx: &RenderContext) -> Result<(), Error> {
         let cd = current_dir()?;
         let mut events = Vec::new();
-        for item in ctx.book.iter() {
+        for (item_id, item) in ctx.book.iter().enumerate() {
             if let &BookItem::Chapter(ref chapter) = item {
+                if item_id != 0 {
+                    events.push(Event::SoftBreak);
+                }
                 events.push(Event::Start(Tag::Strong));
                 let mut buf = String::new();
                 if let Some(ref section_number) = chapter.number {
                     write!(buf, "{} ", section_number).ok();
                 }
                 buf.push_str(&chapter.name);
-                let buf_len = buf.len();
-                events.push(Event::Text(
-                    (0..buf_len).map(|_| '=').collect::<String>().into(),
-                ));
+
+                let buf_len = buf.len() + 2;
                 events.push(Event::SoftBreak);
+                events.push(Event::Start(Tag::Header(1)));
                 events.push(Event::Text(buf.into()));
-                events.push(Event::SoftBreak);
+                events.push(Event::End(Tag::Header(1)));
                 events.push(Event::Text(
                     (0..buf_len).map(|_| '=').collect::<String>().into(),
                 ));
-                events.push(Event::SoftBreak);
-                events.push(Event::SoftBreak);
                 events.push(Event::End(Tag::Strong));
+                events.push(Event::SoftBreak);
 
                 events.extend(Parser::new(&chapter.content));
             }

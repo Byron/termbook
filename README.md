@@ -34,6 +34,9 @@ mdbook itself, and make recording that using asciinema easy.
 
 That should make recordings reproducible.
 
+ * [ ] Chapter Regex
+ * [ ] asciinema integration
+
 [mdcat]: https://github.com/lunaryorn/mdcat
 
 #### `termbook` renderer plugin programs for `mdbook`

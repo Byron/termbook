@@ -75,11 +75,8 @@ impl Renderer for Playback {
                 let syntax_set = SyntaxSet::load_defaults_newlines();
                 push_tty(
                     &mut DelayPrinter::new(stdout()),
-                    Terminal::BasicAnsi,
-                    TerminalSize {
-                        width: 80,
-                        height: 30,
-                    },
+                    Terminal::detect(),
+                    TerminalSize::detect().unwrap_or_default(),
                     Parser::new(&chapter.content),
                     &cd,
                     ResourceAccess::LocalOnly,

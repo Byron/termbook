@@ -48,7 +48,7 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
         .arg(book_path.clone());
 
     let playback = App::new("play")
-        .help("Playback documentation by emulating a fast human typist.")
+        .about("Playback documentation by emulating a fast human typist.")
         .arg(
             Arg::with_name("cps")
                 .long("characters-per-second")

@@ -24,7 +24,7 @@ EOF
   cat <<'EOF' > "$basename/SUMMARY.md"
 # Summary
 
-[Introduction](./index.md)
+ - [Introduction](./index.md)
 EOF
 
   cp "$index" "$basename/index.md"

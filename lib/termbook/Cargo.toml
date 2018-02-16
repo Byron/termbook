@@ -17,4 +17,5 @@ pulldown-cmark = "0.1.0"
 mdcat = "0.8.0"
 syntect = "2.0.0"
 atty = "0.2.6"
+globset = "0.3.0"
 

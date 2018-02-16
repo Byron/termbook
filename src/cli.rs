@@ -56,7 +56,13 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                 .default_value("50")
                 .help("The amount of characters printed per second."),
         )
-        .arg(book_path);
+        .arg(book_path)
+        .arg(Arg::with_name("selector")
+            .required(false)
+            .multiple(true)
+            .value_name("selector")
+            .help("Either the name of the section as shown in the html output (e.g. 2.1., note the trailing '.') \
+            or a glob pattern matching the chapter name. If the pattern is invalid, it will be ignored silently."));
 
     app.subcommand(build)
         .subcommand(playback)

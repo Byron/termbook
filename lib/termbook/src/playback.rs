@@ -6,6 +6,7 @@ use pulldown_cmark::{Event, Parser, Tag};
 
 use mdcat::{push_tty, ResourceAccess, Terminal, TerminalSize};
 use atty::{self, Stream};
+use globset::{Glob, GlobSetBuilder};
 
 use std::io::{self, stdout, Write};
 use std::env::current_dir;
@@ -13,17 +14,20 @@ use std::fmt::Write as FmtWrite;
 use std::thread::sleep;
 use std::time::Duration;
 use std::str;
+use std::path::Path;
 
 pub struct Playback {
     delay_per_character: Duration,
+    globs: Vec<String>,
 }
 
 impl Playback {
-    pub fn new(characters_per_second: usize) -> Playback {
+    pub fn new(characters_per_second: usize, globs: Vec<String>) -> Playback {
         Playback {
             delay_per_character: Duration::from_millis(
                 (1000.0 / characters_per_second as f32) as u64,
             ),
+            globs,
         }
     }
 }
@@ -98,9 +102,30 @@ impl Renderer for Playback {
 
     fn render(&self, ctx: &RenderContext) -> Result<(), Error> {
         let cd = current_dir()?;
+        let globs = self.globs
+            .iter()
+            .filter_map(|s| Glob::new(s).ok())
+            .fold(GlobSetBuilder::new(), |mut b, g| {
+                b.add(g);
+                b
+            })
+            .build()
+            .map_err(|e| Error::from(format!("{}", e)))?;
         let mut events = Vec::new();
+        let mut amount_of_printed_chapters = 0;
         for (item_id, item) in ctx.book.iter().enumerate() {
             if let &BookItem::Chapter(ref chapter) = item {
+                if !globs.is_empty() && !globs.is_match(&Path::new(&chapter.name)) {
+                    let mut is_match = false;
+                    if let Some(ref section_number) = chapter.number {
+                        let section_number = format!("{}", section_number);
+                        is_match = globs.is_match(&Path::new(&section_number))
+                    }
+                    if !is_match {
+                        continue;
+                    }
+                }
+                amount_of_printed_chapters += 1;
                 if item_id != 0 {
                     events.push(Event::SoftBreak);
                 }
@@ -124,6 +149,9 @@ impl Renderer for Playback {
 
                 events.extend(Parser::new(&chapter.content));
             }
+        }
+        if amount_of_printed_chapters == 0 {
+            return Err("globs did not match any chapter.".into());
         }
         push_tty(
             &mut DelayPrinter::new(stdout(), self.delay_per_character.clone()),

@@ -29,6 +29,9 @@ pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error
 
 pub fn playback_context_from(args: &ArgMatches) -> Result<PlaybackContext, Error> {
     Ok(PlaybackContext {
+        globs: args.values_of("selector")
+            .map(|v| v.map(String::from).collect())
+            .unwrap_or(Vec::new()),
         chars_per_second: args.value_of("cps")
             .expect("at least default")
             .parse()

@@ -51,6 +51,27 @@ title "termbook playback"
         expect_run $SUCCESSFULLY "${args[@]}" --characters-per-second 40 "$BOOK"
       }
     )
+    
+    (with "a chapter set that does not exist and one that does"
+      it "succeeds and prints out the matching chapter" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" 'does-not-exist*' 'Intro*'
+      }
+    )
+    
+    (with "a chapter identified by the section number"
+      it "succeeds and prints out the matching chapter" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" '1.'
+      }
+    )
+    
+    (with "a chapter that does not match anything"
+      it "fails" && {
+        WITH_SNAPSHOT="$snapshot/playback-no-chapter-matches" \
+        expect_run $WITH_FAILURE "${args[@]}" "$BOOK" 'cannot-match-anything'
+      }
+    )
   )
 )
 

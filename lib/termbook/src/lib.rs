@@ -1,4 +1,5 @@
 extern crate atty;
+extern crate globset;
 pub extern crate mdbook;
 extern crate mdcat;
 extern crate pulldown_cmark;

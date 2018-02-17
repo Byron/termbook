@@ -24,6 +24,7 @@ main() {
 
     cross rustc --bin $CRATE_NAME --target $TARGET --release -- -C lto
 
+    strip target/$TARGET/release/$CRATE_NAME
     cp target/$TARGET/release/$CRATE_NAME $stage/
 
     cd $stage

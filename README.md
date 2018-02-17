@@ -25,20 +25,6 @@ Installation documentation can [be found here][installation-docs].
 
 ### Roadmap
 
-#### `termbook interactive` and `asciinema`
-
-Pretty-print (chapters of) an `mdbook` to the terminal, similar to [`mdcat`][mdcat],
-with customizable settings for the speed of printing, and how `bash` scripts should be
-'typed'. The goal is to make recording demonstrations as pretty and informative as the
-mdbook itself, and make recording that using asciinema easy.
-
-That should make recordings reproducible.
-
- * [x] Chapter Regex
- * [ ] asciinema integration
-
-[mdcat]: https://github.com/lunaryorn/mdcat
-
 #### `termbook` renderer plugin programs for `mdbook`
 
 Provide all renderers in `termbook` as standalone `mdbook` compatible plugin
@@ -55,6 +41,7 @@ for renderers.
 #### Making a new release
 
  * **Assure all documentation is up-to-date and tests are green**
+ * **Run cargo-clippy and fix all issues**
  * update the `version` in all `Cargo.toml` files and `git commit`
  * run `cargo publish` for the library and the CLI
  * run `git tag -s <version>`

@@ -1,5 +1,5 @@
 `termbook` is a minimal clone of the `mdbook` command-line tool, and will only
-be required to build the final version of your book as it adds the required
+be required to build the final version of your book as it adds the needed
 [`mdbook` preprocessor][mdbook-preprocessor].
 
 [mdbook-preprocessor]: https://rust-lang-nursery.github.io/mdBook/for_developers/preprocessors.html

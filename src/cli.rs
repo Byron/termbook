@@ -62,7 +62,8 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
             .multiple(true)
             .value_name("selector")
             .help("Either the name of the section as shown in the html output (e.g. 2.1., note the trailing '.') \
-            or a glob pattern matching the chapter name. If the pattern is invalid, it will be ignored silently."));
+            or a glob pattern matching the chapter name, e.g. 'Intro*'. \
+            If the pattern is invalid, it will be ignored silently, and the program will fail if no pattern matches."));
 
     app.subcommand(build)
         .subcommand(playback)

@@ -8,6 +8,8 @@ This allows to write testable documentation for command-line interfaces.
 
 It came to life for the documentation needs of [share-secrets-safely][sheesy].
 
+[![asciicast](https://asciinema.org/a/163518.png)](https://asciinema.org/a/163518)
+
 [mdbook]: https://github.com/rust-lang-nursery/mdBook
 [sheesy]: https://github.com/Byron/share-secrets-safely
 
@@ -46,5 +48,11 @@ for renderers.
  * run `cargo publish` for the library and the CLI
  * run `git tag -s <version>`
  * run `git push --tags origin master`
+ * **update the asciinema docs**
+   * Set your terminal to a decent size
+   * run `make asciinema-no-upload`
+   * When happy with the result, run `make asciinema-upload`
+   * visit the URL, configure the video, make it public, and copy the 
+     markdown link into the README file.
  
 documentation is updated on each push to master.

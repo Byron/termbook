@@ -5,6 +5,8 @@ help:
 	$(info - Testing -----------------------------------------------------------------------------------------------------)
 	$(info lint-scripts            | Run journey tests using a pre-built linux binary)
 	$(info stateless-journey-tests | Run only stateless journey)
+	$(info asciinema-no-upload     | record the default eye-candy video to a file)
+	$(info asciinema-upload        | record the intro video and upload it)
 	$(info docs										 | Build the documentation with the debug binary)
 
 always:
@@ -20,3 +22,15 @@ lint-scripts:
 	
 docs: $(EXE)
 	PATH="$(dir $<):$$PATH" $< build doc
+	
+termbook.cast: $(EXE)
+	PATH="$(dir $<):$$PATH" \
+	asciinema rec \
+		--title 'An Introduction to termbook (https://byron.github.io/termbook)' \
+		-c '$< play doc Introduction Command-Line* 2>/dev/null' \
+		$@
+	
+asciinema-no-upload: termbook.cast
+	
+asciinema-upload: termbook.cast
+	asciinema upload $<

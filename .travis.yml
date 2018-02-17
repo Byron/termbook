@@ -68,12 +68,13 @@ deploy:
     on:
       repo: Byron/termbook
       branch: master
+      condition: $ENABLE_TESTS = 1
   - api_key:
       secure: nKsIFoaLOVCBrsdppYWCNuDMVu87sH7AVXdtGugm1ikGuQzqhtrsmLk1jyyvm/MYTZK6xjh5RhK/W6aDQjwX6XYPqEWG3KuGMqfqwtF0H1vcbAoxuc+LTyht/82IiN4jHMRWvRfFJrwLyCpgwOVTIWy/lejFO5D2fqasQOFo7/HBRLeVkhKyab9bCD97UBDlaNIeyBs9UB7dLHcKa+nqoQDEquehGS7NY0kO/DU79ia8tD3ymFgI4oo7W8eoFChcs2rbTUtnCQmb0r+ni/7JTTCtcx6iuE7YW3f/ryLgfmMv6aN2lF7QHgqxdZy65jeIfye55QTyoqO6APd7VPadOXAUsqwRInhNQl5T4sJklGKXr1bwSy3H3mbrQDyVWGl56P3sBYCnaGB2xzF80o7+8Xl5LAiUT2QbK/yKgU1DCPwOz9ap6Du5eF7qPyOoMaLLRLPfgFxO/loaEoQ+FG7yC7aEV/kPJQ8dpwDDQ9xYsQ1qM5qvsglBSWqZ33nHX7m5rXNMIPLeaNS0lPcswCU46Z0kSdHkKZkgNLaliRWTP2n/rXoPHoTKO97WvRFSsLgi8l/krGz7dLD4xUbzW1n63VDvrhfyFXjqXCVgkzRY2aOceNWolirF/UY0Xww+zR5hXiaToEZUV/RqNxQf4DAWXykRUHoBWpWcVeWklmCTweM=
     file_glob: true
     file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
     on:
-      condition: $TRAVIS_RUST_VERSION = stable
+      condition: $TRAVIS_RUST_VERSION = stable -a -n "$TARGET"
       tags: true
     provider: releases
     skip_cleanup: true

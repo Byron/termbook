@@ -3,6 +3,11 @@
 set -ex
 
 main() {
+  # We run tests only once, and won't try to create any additional artifacts
+  if [ -n "$ENABLE_TESTS" ]; then
+    return
+  fi
+  
     local src=$(pwd) \
           stage=
 

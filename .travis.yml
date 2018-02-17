@@ -1,22 +1,79 @@
-sudo: required
-os:
-  - linux
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+dist: trusty
 language: rust
-rust:
-  - stable
-cache:
-  - cargo
-script:
-  - make stateless-journey-tests
-  - make docs
-deploy:
-  provider: pages
-  skip-cleanup: true
-  local-dir: doc/book
-  github-token: "$GITHUB_TOKEN"
-  on:
-    repo: Byron/termbook
-    branch: master
+services: docker
+sudo: required
+
 env:
   global:
-    secure: gRfVsUkRew4yQE0UrzTLih06+otLOKSm61hRqvVrw9A+BPlE/cxT96N0H89N6+xnSF6ye+gdB12KIq0qeCSG76l3SqL6X2Y00vMn5TAd/KjSgQ++A58V6fgYZnfjg4OvEx4vd76jz8OTu1HpITKLLL9zovdHur8hF3Cn7Y7/p6ROc3T0u0pzMwdbC2fj4+/OFhNt3Hj15LNvp/I5NAN8dewlke8ukgaN4sNnJNxgZkf1sKVBID4+f994G7kbCmdStMU04aHH0/T5j2vWqhxcOKS6xJuos3R9MpSefoOvrotYX7/iFubEjVzzny42lsoUBmw6JXi0xRyCCjbsv4WLWLnTFP+wAUgckZKunuAaZYfeysK7OnpbPRZ5rDtp64iRcssa5yYZWGfE8EXXlRMNfuNvNQEIzYsaHgseWh1W1oc1DeCE9GazOnmP3BNfLuDeV7qEAI29Zrt59QMkA3U1btHHRPhRa/GRBePWsh+1OSUjzTO8D4fSF/4Onx+ld/KJs62QH0w6w7xf7e6Wfm05+vUTYob6cRyr22ULdjrhp8UyMuKaEGtJtJIV4aLZu7WERYXx3x4v4EyYYph+u9Td2Pgk3xFZ/BOkWNaN5W7yc9qaxS7UvFnCe+yli7QR4uPk6Pm8ILirKFk5VzyATm+w6lcNU+enPcqtqvUPAzJJSCQ=
+    - CRATE_NAME=termbook
+    - secure: gRfVsUkRew4yQE0UrzTLih06+otLOKSm61hRqvVrw9A+BPlE/cxT96N0H89N6+xnSF6ye+gdB12KIq0qeCSG76l3SqL6X2Y00vMn5TAd/KjSgQ++A58V6fgYZnfjg4OvEx4vd76jz8OTu1HpITKLLL9zovdHur8hF3Cn7Y7/p6ROc3T0u0pzMwdbC2fj4+/OFhNt3Hj15LNvp/I5NAN8dewlke8ukgaN4sNnJNxgZkf1sKVBID4+f994G7kbCmdStMU04aHH0/T5j2vWqhxcOKS6xJuos3R9MpSefoOvrotYX7/iFubEjVzzny42lsoUBmw6JXi0xRyCCjbsv4WLWLnTFP+wAUgckZKunuAaZYfeysK7OnpbPRZ5rDtp64iRcssa5yYZWGfE8EXXlRMNfuNvNQEIzYsaHgseWh1W1oc1DeCE9GazOnmP3BNfLuDeV7qEAI29Zrt59QMkA3U1btHHRPhRa/GRBePWsh+1OSUjzTO8D4fSF/4Onx+ld/KJs62QH0w6w7xf7e6Wfm05+vUTYob6cRyr22ULdjrhp8UyMuKaEGtJtJIV4aLZu7WERYXx3x4v4EyYYph+u9Td2Pgk3xFZ/BOkWNaN5W7yc9qaxS7UvFnCe+yli7QR4uPk6Pm8ILirKFk5VzyATm+w6lcNU+enPcqtqvUPAzJJSCQ=
+
+matrix:
+  include:
+    - env: ENABLE_TESTS=1
+    # Linux
+    - env: TARGET=i686-unknown-linux-musl
+    - env: TARGET=x86_64-unknown-linux-musl
+
+    # OSX
+    - env: TARGET=i686-apple-darwin
+      os: osx
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
+    # *BSD
+    - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+
+    # Windows
+    - env: TARGET=x86_64-pc-windows-gnu
+    
+cache:
+  - cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+  
+branches:
+  only:
+    # release tags
+    - /^\d+\.\d+\.\d+.*$/
+    - master
+  
+before_install:
+  - set -e
+  - rustup self update
+
+install:
+  - sh bin/ci/install.sh
+  - source ~/.cargo/env || true
+
+script:
+  - bash bin/ci/script.sh
+
+after_script: set +e
+
+before_deploy:
+  - sh bin/ci/before_deploy.sh
+  
+deploy:
+  - provider: pages
+    skip-cleanup: true
+    local-dir: doc/book
+    github-token: "$GITHUB_TOKEN"
+    on:
+      repo: Byron/termbook
+      branch: master
+  - api_key:
+      secure: nKsIFoaLOVCBrsdppYWCNuDMVu87sH7AVXdtGugm1ikGuQzqhtrsmLk1jyyvm/MYTZK6xjh5RhK/W6aDQjwX6XYPqEWG3KuGMqfqwtF0H1vcbAoxuc+LTyht/82IiN4jHMRWvRfFJrwLyCpgwOVTIWy/lejFO5D2fqasQOFo7/HBRLeVkhKyab9bCD97UBDlaNIeyBs9UB7dLHcKa+nqoQDEquehGS7NY0kO/DU79ia8tD3ymFgI4oo7W8eoFChcs2rbTUtnCQmb0r+ni/7JTTCtcx6iuE7YW3f/ryLgfmMv6aN2lF7QHgqxdZy65jeIfye55QTyoqO6APd7VPadOXAUsqwRInhNQl5T4sJklGKXr1bwSy3H3mbrQDyVWGl56P3sBYCnaGB2xzF80o7+8Xl5LAiUT2QbK/yKgU1DCPwOz9ap6Du5eF7qPyOoMaLLRLPfgFxO/loaEoQ+FG7yC7aEV/kPJQ8dpwDDQ9xYsQ1qM5qvsglBSWqZ33nHX7m5rXNMIPLeaNS0lPcswCU46Z0kSdHkKZkgNLaliRWTP2n/rXoPHoTKO97WvRFSsLgi8l/krGz7dLD4xUbzW1n63VDvrhfyFXjqXCVgkzRY2aOceNWolirF/UY0Xww+zR5hXiaToEZUV/RqNxQf4DAWXykRUHoBWpWcVeWklmCTweM=
+    file_glob: true
+    file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+    on:
+      condition: $TRAVIS_RUST_VERSION = stable
+      tags: true
+    provider: releases
+    skip_cleanup: true

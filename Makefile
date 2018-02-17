@@ -7,11 +7,11 @@ help:
 	$(info stateless-journey-tests | Run only stateless journey)
 	$(info asciinema-no-upload     | record the default eye-candy video to a file)
 	$(info asciinema-upload        | record the intro video and upload it)
-	$(info docs										 | Build the documentation with the debug binary)
+	$(info docs                    | Build the documentation with the debug binary)
 
 always:
 
-$(EXE): always
+$(EXE): $(shell find src -name *.rs)
 	cargo build
 
 stateless-journey-tests: $(EXE)

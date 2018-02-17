@@ -15,7 +15,7 @@ use std::fs::File;
 /// A preprocessor which runs specifically tagged codeblocks.
 pub struct RunCodeBlocks;
 
-const PREPROCESSOR_NAME: &'static str = "run-code-blocks";
+const PREPROCESSOR_NAME: &str = "run-code-blocks";
 
 enum Action {
     Exec {
@@ -87,7 +87,7 @@ impl State {
     fn should_hide(&self) -> bool {
         self.actions
             .iter()
-            .any(|a| if let &Action::Hide = a { true } else { false })
+            .any(|a| if let Action::Hide = *a { true } else { false })
     }
 
     fn apply_end_of_codeblock_actions(&mut self, events: &mut Vec<Event>) {
@@ -208,6 +208,7 @@ fn parse_actions(info: &str) -> Result<Vec<Action>> {
     Ok(res)
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Event<'a>>> {
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
@@ -249,7 +250,7 @@ fn process_chapter(ctx: &PreprocessorContext, item: &mut BookItem) -> Result<()>
     let mut state = State::default();
     state.book_root = ctx.root.clone();
 
-    if let &mut BookItem::Chapter(ref mut chapter) = item {
+    if let BookItem::Chapter(ref mut chapter) = *item {
         let md = {
             let mut md = String::with_capacity(chapter.content.len() + 128);
             {

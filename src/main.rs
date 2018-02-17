@@ -59,20 +59,20 @@ fn main() {
     let matches = app.get_matches();
     match matches.subcommand() {
         ("completions", Some(args)) => {
-            ok_or_exit(parse::generate_completions(appc, &args));
+            ok_or_exit(parse::generate_completions(appc, args));
             process::exit(0);
         }
         ("play", Some(args)) => {
-            let ctx = ok_or_exit(parse::playback_context_from(&args));
+            let ctx = ok_or_exit(parse::playback_context_from(args));
             let mut book = ok_or_exit(termbook::load(&ctx.path));
             book.with_renderer(termbook::Playback::new(ctx.chars_per_second, ctx.globs));
             ok_or_exit(book.build());
         }
         ("build", Some(args)) => {
-            let ctx = ok_or_exit(parse::build_context_from(&args));
+            let ctx = ok_or_exit(parse::build_context_from(args));
             let mut book = ok_or_exit(termbook::load(&ctx.path));
             if ctx.rewrite {
-                book.with_renderer(termbook::Rewrite::new());
+                book.with_renderer(termbook::Rewrite::default());
             }
             ok_or_exit(book.build());
         }

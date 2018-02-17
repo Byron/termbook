@@ -65,9 +65,9 @@ where
     W: Write,
 {
     fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
-        if buf == &[0x1b, 0x5d] || buf == &[0x1b, 0x5b] {
+        if buf == [0x1b, 0x5d] || buf == [0x1b, 0x5b] {
             self.terminal_write_level += 1;
-        } else if buf == &[0x07] || buf == &[0x6d] {
+        } else if buf == [0x07] || buf == [0x6d] {
             self.terminal_write_level -= 1;
         }
 
@@ -80,7 +80,7 @@ where
                 },
                 Err(_) => for b in buf {
                     sleep(self.delay_per_character);
-                    self.inner.write(&[*b])?;
+                    self.inner.write_all(&[*b])?;
                     self.inner.flush().ok();
                 },
             }
@@ -114,7 +114,7 @@ impl Renderer for Playback {
         let mut events = Vec::new();
         let mut amount_of_printed_chapters = 0;
         for (item_id, item) in ctx.book.iter().enumerate() {
-            if let &BookItem::Chapter(ref chapter) = item {
+            if let BookItem::Chapter(ref chapter) = *item {
                 if !globs.is_empty() && !globs.is_match(&Path::new(&chapter.name)) {
                     let mut is_match = false;
                     if let Some(ref section_number) = chapter.number {
@@ -154,7 +154,7 @@ impl Renderer for Playback {
             return Err("globs did not match any chapter.".into());
         }
         push_tty(
-            &mut DelayPrinter::new(stdout(), self.delay_per_character.clone()),
+            &mut DelayPrinter::new(stdout(), self.delay_per_character),
             Terminal::detect(),
             TerminalSize::detect().unwrap_or_default(),
             events.into_iter(),

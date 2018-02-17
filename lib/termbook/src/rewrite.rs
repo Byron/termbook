@@ -9,13 +9,8 @@ use std::io::Write;
 /// An implementation of a renderer which writes all preprocessed markdown files.
 ///
 /// This can be useful for debugging.
+#[derive(Default)]
 pub struct Rewrite;
-
-impl Rewrite {
-    pub fn new() -> Self {
-        Rewrite
-    }
-}
 
 impl Renderer for Rewrite {
     fn name(&self) -> &str {
@@ -24,7 +19,7 @@ impl Renderer for Rewrite {
 
     fn render(&self, ctx: &RenderContext) -> Result<()> {
         for item in ctx.book.iter() {
-            if let &BookItem::Chapter(ref chapter) = item {
+            if let BookItem::Chapter(ref chapter) = *item {
                 let dir = ctx.destination
                     .join(&chapter.path.parent().expect("at least filename"));
                 create_dir_all(&dir)?;

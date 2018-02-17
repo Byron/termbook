@@ -150,7 +150,7 @@ impl Renderer for Playback {
                 events.extend(Parser::new(&chapter.content));
             }
         }
-        if amount_of_printed_chapters == 0 {
+        if !globs.is_empty() && amount_of_printed_chapters == 0 {
             return Err("globs did not match any chapter.".into());
         }
         push_tty(

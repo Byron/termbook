@@ -8,7 +8,7 @@ main() {
     make docs
     return
   fi
-  cross build --target $TARGET --release
+  cross build --target $TARGET
 }
 
 # we don't run the "test phase" when doing deploys

@@ -8,7 +8,7 @@ This allows to write testable documentation for command-line interfaces.
 
 It came to life for the documentation needs of [share-secrets-safely][sheesy].
 
-[![asciicast](https://asciinema.org/a/163518.png)](https://asciinema.org/a/163518)
+[![asciicast](https://asciinema.org/a/163556.png)](https://asciinema.org/a/163556)
 
 [mdbook]: https://github.com/rust-lang-nursery/mdBook
 [sheesy]: https://github.com/Byron/share-secrets-safely

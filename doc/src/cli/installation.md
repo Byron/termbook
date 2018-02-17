@@ -6,7 +6,22 @@ be required to build the final version of your book as it adds the needed
 
 ## Installation
 
-`termbook` currently can be installed via `cargo` only, which in turn can be obtained
+### Via Github-Releases
+
+At the [github releases page][gh-releases] you will find precompiled binaries
+for all common platforms. 
+
+Just decompress the respective archive and copy the `termbook` binary into your
+`$PATH`, usually this will be `/usr/local/bin`.
+
+_Windows is notably absent, but could be provided if 
+there is demand._
+
+[gh-releases]: https://github.com/Byron/termbook/releases
+
+### Via Cargo
+
+`termbook` can be installed via `cargo` only, which in turn can be obtained
 via [`rustup`][rustup].
 
 Then it's as easy as
@@ -15,10 +30,13 @@ Then it's as easy as
 cargo install termbook-cli
 ```
 
+[rustup]: http://rustup.rs/ 
+
+### After the installation...
+
 Now you should be able to run `termbook`:
 
 ```bash,exec
 termbook --help
 ```
 
-[rustup]: http://rustup.rs/ 

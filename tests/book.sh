@@ -30,7 +30,7 @@ title "termbook completions"
   )
 )
 
-title "termbook playback"
+title "termbook play"
 (sandboxed
   args=("$exe" play)
   
@@ -38,7 +38,6 @@ title "termbook playback"
     make-book "$fixture/books/no-markers.md"
     
     (with "default arguments"
-
       it "succeeds and prints out everything nicely" && {
         WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
         expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
@@ -73,6 +72,63 @@ title "termbook playback"
       }
     )
   )
+)
+
+title "termbook play with asciinema"
+(sandboxed
+  args=("$exe" play --asciinema-rec -a '-t' -a 'some-title')
+  make-book "$fixture/books/no-markers.md"
+  
+  (with "asciinema not in the path"
+    export PATH=/usr/bin:/bin
+    precondition 'asciinema not in PATH' && {
+      expect_run $WITH_FAILURE command -v asciinema
+    }
+    
+    it "fails with a descriptive error message" && {
+        WITH_SNAPSHOT="$snapshot/playback-asciinema-no-binary" \
+        expect_run $WITH_FAILURE "${args[@]}" "$BOOK"
+    }
+  )
+  
+  # (when "given a simple book"
+  #   make-book "$fixture/books/no-markers.md"
+  # 
+  #   (with "default arguments"
+  #     it "succeeds and prints out everything nicely" && {
+  #       WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+  #       expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+  #     }
+  #   )
+  # 
+  #   (with "characters per second set"
+  #     it "succeeds and prints out everything nicely" && {
+  #       WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+  #       expect_run $SUCCESSFULLY "${args[@]}" --characters-per-second 40 "$BOOK"
+  #     }
+  #   )
+  # 
+  #   (with "a chapter set that does not exist and one that does"
+  #     it "succeeds and prints out the matching chapter" && {
+  #       WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+  #       expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" 'does-not-exist*' 'Intro*'
+  #     }
+  #   )
+  # 
+  #   (with "a chapter identified by the section number"
+  #     it "succeeds and prints out the matching chapter" && {
+  #       WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+  #       expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" '1.'
+  #     }
+  #   )
+  # 
+  #   (with "a chapter that does not match anything"
+  #     it "fails" && {
+  #       WITH_SNAPSHOT="$snapshot/playback-no-chapter-matches" \
+  #       expect_run $WITH_FAILURE "${args[@]}" "$BOOK" 'cannot-match-anything'
+  #     }
+  #   )
+  # )
 )
 
 title "termbook build"

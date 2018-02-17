@@ -49,6 +49,13 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
 
     let playback = App::new("play")
         .about("Playback documentation by emulating a fast human typist.")
+        .arg(Arg::with_name("asciinema-rec")
+                 .long("asciinema-rec")
+                .short("r")
+                .required(false)
+            .help("If set, 'asciinema' (see https://asciinema.org) will be used to record \
+                   termbook")
+        )
         .arg(
             Arg::with_name("cps")
                 .long("characters-per-second")

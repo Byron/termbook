@@ -7,7 +7,8 @@ lazy_static! {
 }
 
 pub fn app<'a, 'b>() -> App<'a, 'b> {
-    let app: App = app_from_crate!();
+    let mut app: App = app_from_crate!();
+    app = app.name("termbook");
     let completions = App::new("completions")
         .about("generate completions for supported shell")
         .arg({

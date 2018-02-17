@@ -15,7 +15,8 @@ matrix:
   include:
     - env: ENABLE_TESTS=1
     # Linux
-    - env: TARGET=i686-unknown-linux-musl
+    # fails as /usr/bin/file can't be found. Fair enough
+    # - env: TARGET=i686-unknown-linux-musl
     - env: TARGET=x86_64-unknown-linux-musl
 
     # OSX
@@ -74,7 +75,7 @@ deploy:
     file_glob: true
     file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
     on:
-      condition: $TRAVIS_RUST_VERSION = stable -a -n "$TARGET"
+      condition: $TRAVIS_RUST_VERSION = stable && -n "$TARGET"
       tags: true
     provider: releases
     skip_cleanup: true

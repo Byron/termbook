@@ -54,5 +54,9 @@ for renderers.
    * When happy with the result, run `make asciinema-upload`
    * visit the URL, configure the video, make it public, and copy the 
      markdown link into the README file.
+ * **update brew file**
+   * when the release builds are coming in, download the archives for darwin and
+     linux musl
+   * take their sha256 hashes and update the brew package file in `pkg/brew` accordingly
  
 documentation is updated on each push to master.

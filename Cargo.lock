@@ -1388,7 +1388,7 @@ dependencies = [
 
 [[package]]
 name = "termbook-cli"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "clap 2.30.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",

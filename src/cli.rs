@@ -7,8 +7,7 @@ lazy_static! {
 }
 
 pub fn app<'a, 'b>() -> App<'a, 'b> {
-    let mut app: App = app_from_crate!();
-    app = app.name("termbook");
+    let app: App = app_from_crate!();
     let completions = App::new("completions")
         .about("generate completions for supported shell")
         .arg({
@@ -66,7 +65,11 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
             or a glob pattern matching the chapter name, e.g. 'Intro*'. \
             If the pattern is invalid, it will be ignored silently, and the program will fail if no pattern matches."));
 
-    app.subcommand(build)
+    app.name("termbook")
+        .after_help(
+            "Also have a look at the online documentation at https://byron.github.io/termbook",
+        )
+        .subcommand(build)
         .subcommand(playback)
         .subcommand(completions)
 }

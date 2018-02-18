@@ -11,7 +11,7 @@ help:
 
 always:
 
-$(EXE): $(shell find src -name *.rs) $(shell find lib -name *.rs)
+$(EXE): $(shell find src -name *.rs) $(shell find lib -name *.rs) $(shell find . -name Cargo.toml)
 	cargo build
 
 stateless-journey-tests: $(EXE)

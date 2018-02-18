@@ -28,6 +28,13 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
             "The path to the mdbook to render. If unset, the current working directory \
              is expected to contain an mdbook configuration file.",
         );
+    let selector = Arg::with_name("selector")
+        .required(false)
+        .multiple(true)
+        .value_name("selector")
+        .help("Either the name of the section as shown in the html output (e.g. 2.1., note the trailing '.') \
+            or a glob pattern matching the chapter name, e.g. 'Intro*'. \
+            If the pattern is invalid, it will be ignored silently, and the program will fail if no pattern matches.");
     let build = App::new("build")
         .about(
             "Build the `mdbook` compatible book in the current working directory \
@@ -45,7 +52,8 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                      It's useful to review the preprocessor result.",
                 ),
         )
-        .arg(book_path.clone());
+        .arg(book_path.clone())
+        .arg(selector.clone());
 
     let playback = App::new("play")
         .about("Playback documentation by emulating a fast human typist.")
@@ -57,13 +65,7 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
                 .help("The amount of characters printed per second."),
         )
         .arg(book_path)
-        .arg(Arg::with_name("selector")
-            .required(false)
-            .multiple(true)
-            .value_name("selector")
-            .help("Either the name of the section as shown in the html output (e.g. 2.1., note the trailing '.') \
-            or a glob pattern matching the chapter name, e.g. 'Intro*'. \
-            If the pattern is invalid, it will be ignored silently, and the program will fail if no pattern matches."));
+        .arg(selector);
 
     app.name("termbook")
         .after_help(

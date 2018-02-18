@@ -80,6 +80,32 @@ title "termbook build"
   (with "rewrite enabled"
     args=("$exe" build --rewrite)
 
+    (with "a chapter filter"
+      (when "the filter does not match anything"
+        make-book "$fixture/books/no-markers.md"
+
+        it "fails with an error" && {
+          WITH_SNAPSHOT="$snapshot/build-filter-no-match" \
+          expect_run $WITH_FAILURE "${args[@]}" "$BOOK" 'some-nonexisting-chap*'
+        }
+      )
+      (when "there is one matching filter by chapter and one unmatching filter"
+        make-book "$fixture/books/exec-blank.md"
+
+        it "succeeds" && {
+          WITH_SNAPSHOT="$snapshot/build-filter-match-chapter" \
+          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" some-nonexisting-chapter "1."
+        }
+      )
+      (when "there is one matching filter by name"
+        make-book "$fixture/books/exec-blank.md"
+
+        it "succeeds" && {
+          WITH_SNAPSHOT="$snapshot/build-filter-match-name" \
+          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" 'Intro*'
+        }
+      )
+    )
     (with "an 'include-file' codeblock"
       (with "a an non-existing file"
         make-book "$fixture/books/include-file-non-existing.md"

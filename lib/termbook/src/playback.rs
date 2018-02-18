@@ -6,7 +6,7 @@ use pulldown_cmark::{Event, Parser, Tag};
 
 use mdcat::{push_tty, ResourceAccess, Terminal, TerminalSize};
 use atty::{self, Stream};
-use globset::{Glob, GlobSetBuilder};
+use {exclude_chapter, globset_from_strings};
 
 use std::io::{self, stdout, Write};
 use std::env::current_dir;
@@ -14,7 +14,6 @@ use std::fmt::Write as FmtWrite;
 use std::thread::sleep;
 use std::time::Duration;
 use std::str;
-use std::path::Path;
 
 pub struct Playback {
     delay_per_character: Duration,
@@ -102,28 +101,13 @@ impl Renderer for Playback {
 
     fn render(&self, ctx: &RenderContext) -> Result<(), Error> {
         let cd = current_dir()?;
-        let globs = self.globs
-            .iter()
-            .filter_map(|s| Glob::new(s).ok())
-            .fold(GlobSetBuilder::new(), |mut b, g| {
-                b.add(g);
-                b
-            })
-            .build()
-            .map_err(|e| Error::from(format!("{}", e)))?;
+        let globs = globset_from_strings(&self.globs)?;
         let mut events = Vec::new();
         let mut amount_of_printed_chapters = 0;
         for (item_id, item) in ctx.book.iter().enumerate() {
             if let BookItem::Chapter(ref chapter) = *item {
-                if !globs.is_empty() && !globs.is_match(&Path::new(&chapter.name)) {
-                    let mut is_match = false;
-                    if let Some(ref section_number) = chapter.number {
-                        let section_number = format!("{}", section_number);
-                        is_match = globs.is_match(&Path::new(&section_number))
-                    }
-                    if !is_match {
-                        continue;
-                    }
+                if exclude_chapter(&globs, chapter) {
+                    continue;
                 }
                 amount_of_printed_chapters += 1;
                 if item_id != 0 {

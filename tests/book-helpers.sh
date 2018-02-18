@@ -13,7 +13,7 @@ function make-book () {
   local basename="${index##*/}"
   basename="${basename%.*}"
   
-  mkdir "$basename"
+  mkdir -p "$basename"
   cat <<'EOF' > "$basename/book.toml"
 [book]
 authors = []

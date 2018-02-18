@@ -7,6 +7,7 @@ pub struct PlaybackContext {
 }
 
 pub struct BuildContext {
+    pub globs: Vec<String>,
     pub path: PathBuf,
     pub rewrite: bool,
 }

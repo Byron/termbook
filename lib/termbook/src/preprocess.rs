@@ -1,10 +1,11 @@
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use mdbook::BookItem;
-use mdbook::book::Book;
+use mdbook::book::{Book, Chapter};
 use mdbook::errors::Result;
 use mdbook::errors::Error;
 use pulldown_cmark::{Event, Parser};
 use pulldown_cmark_to_cmark::fmt::cmark;
+use {exclude_chapter, globset_from_strings};
 
 use std::process::{Child, Command, Stdio};
 use std::io::{Read, Write};
@@ -13,7 +14,15 @@ use std::path::PathBuf;
 use std::fs::File;
 
 /// A preprocessor which runs specifically tagged codeblocks.
-pub struct RunCodeBlocks;
+pub struct RunCodeBlocks {
+    globs: Vec<String>,
+}
+
+impl RunCodeBlocks {
+    pub fn new(globs: Vec<String>) -> RunCodeBlocks {
+        RunCodeBlocks { globs }
+    }
+}
 
 const PREPROCESSOR_NAME: &str = "run-code-blocks";
 
@@ -248,33 +257,32 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
     Some(res)
 }
 
-fn process_chapter(ctx: &PreprocessorContext, item: &mut BookItem) -> Result<()> {
+fn process_chapter(ctx: &PreprocessorContext, chapter: &mut Chapter) -> Result<()> {
     let mut state = State::default();
     state.book_root = ctx.root.clone();
 
-    if let BookItem::Chapter(ref mut chapter) = *item {
-        let md = {
-            let mut md = String::with_capacity(chapter.content.len() + 128);
-            {
-                let parser = Parser::new(&chapter.content)
-                    .scan(&mut state, event_filter)
-                    .flat_map(|events| events);
-                cmark(parser, &mut md, None).map_err(|e| format!("{}", e))?;
-            }
-            md
-        };
-        if let Some(err) = state.error {
-            return Err(err.chain_err(|| {
-                format!(
-                    "{}: Preprocessing failed for chapter '{}' in file '{}'.",
-                    PREPROCESSOR_NAME,
-                    chapter.name,
-                    chapter.path.display()
-                )
-            }));
+    let md = {
+        let mut md = String::with_capacity(chapter.content.len() + 128);
+        {
+            let parser = Parser::new(&chapter.content)
+                .scan(&mut state, event_filter)
+                .flat_map(|events| events);
+            cmark(parser, &mut md, None).map_err(|e| format!("{}", e))?;
         }
-        chapter.content = md;
+        md
+    };
+    if let Some(err) = state.error {
+        return Err(err.chain_err(|| {
+            format!(
+                "{}: Preprocessing failed for chapter '{}' in file '{}'.",
+                PREPROCESSOR_NAME,
+                chapter.name,
+                chapter.path.display()
+            )
+        }));
     }
+    chapter.content = md;
+
     Ok(())
 }
 
@@ -285,14 +293,28 @@ impl Preprocessor for RunCodeBlocks {
 
     fn run(&self, ctx: &PreprocessorContext, book: &mut Book) -> Result<()> {
         let mut result = Ok(());
+        let globs = globset_from_strings(&self.globs)?;
+        let mut amount_of_included_chapters = 0;
         book.for_each_mut(|item: &mut BookItem| {
             if result.is_err() {
                 return;
             }
-            if let Err(err) = process_chapter(ctx, item) {
-                result = Err(err);
+            if let BookItem::Chapter(ref mut chapter) = *item {
+                if exclude_chapter(&globs, chapter) {
+                    return;
+                }
+                amount_of_included_chapters += 1;
+                if let Err(err) = process_chapter(ctx, chapter) {
+                    result = Err(err);
+                }
             }
         });
+        if result.is_err() {
+            return result;
+        }
+        if !globs.is_empty() && amount_of_included_chapters == 0 {
+            return Err("globs did not match any chapter.".into());
+        }
         result
     }
 }

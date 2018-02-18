@@ -44,6 +44,9 @@ pub fn playback_context_from(args: &ArgMatches) -> Result<PlaybackContext, Error
 }
 pub fn build_context_from(args: &ArgMatches) -> Result<BuildContext, Error> {
     Ok(BuildContext {
+        globs: args.values_of("selector")
+            .map(|v| v.map(String::from).collect())
+            .unwrap_or_default(),
         path: args.value_of_os("path")
             .map(Path::new)
             .map(Into::into)

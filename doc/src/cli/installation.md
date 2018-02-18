@@ -6,6 +6,16 @@ be required to build the final version of your book as it adds the needed
 
 ## Installation
 
+### Via HomeBrew (OSX and Linux)
+
+This is by far the most straight-forward way of installing termbook. Just execute
+the following code.
+
+```bash
+brew tap byron/termbook https://github.com/byron/termbook.git
+brew install termbook
+```
+
 ### Via Github-Releases
 
 At the [github releases page][gh-releases] you will find precompiled binaries

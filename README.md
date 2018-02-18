@@ -59,4 +59,4 @@ for renderers.
      linux musl
    * take their sha256 hashes and update the brew package file in `pkg/brew` accordingly
  
-documentation is updated on each push to master.
+Documentation is updated on each push to master.

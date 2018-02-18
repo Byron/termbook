@@ -163,8 +163,10 @@ impl State {
                             if actual_exit_status != desired_exit_status {
                                 self.error = Some(
                                     format!(
-                                        "After running '{}': Expected exit status '{}' to be '{}'",
-                                        program, actual_exit_status, desired_exit_status
+                                        "After running '{}': Expected exit status '{}' to be '{}'\nstdout: {}\nstderr: {}",
+                                        program, actual_exit_status, desired_exit_status,
+                                        String::from_utf8_lossy(&output.stdout),
+                                        String::from_utf8_lossy(&output.stderr),
                                     ).into(),
                                 );
                             } else {

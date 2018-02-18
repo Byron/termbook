@@ -2,3 +2,6 @@ run-code-blocks: Executed program 'bash' with '"echo \'not actually an error\'\n
 error: run-code-blocks: Preprocessing failed for chapter 'Introduction' in file 'index.md'.
 Caused by: 
  1: After running 'bash': Expected exit status '0' to be '2'
+stdout: not actually an error
+
+stderr: 

@@ -1,14 +1,14 @@
 class Termbook < Formula
-  version '1.2.2'
+  version '1.2.3'
   desc "A runner for `mdbooks` to keep your documentation tested."
   homepage "https://github.com/Byron/termbook"
 
   if OS.mac?
       url "https://github.com/Byron/termbook/releases/download/#{version}/termbook-#{version}-x86_64-apple-darwin.tar.gz"
-      sha256 "45cc4480e9a52ffdc9064d29ae402e348a934b72f16857dfca7c4df4767cbec4"
+      sha256 "2debbbcf907196f8b4dc23235462fb1298ba9880687a5b256d2ef68d1ea999eb"
   elsif OS.linux?
       url "https://github.com/Byron/termbook/releases/download/#{version}/termbook-#{version}-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "21a37c7311e8addcadb56e9112d755a932dc1ed5900a495c14bf1d484f1703e3"
+      sha256 "830a90aa8f61f7d2cc7778771ea6405b3e04b1e3b5db24742c7b708e8f3ada38"
   end
 
   def install

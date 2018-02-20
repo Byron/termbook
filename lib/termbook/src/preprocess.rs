@@ -99,7 +99,7 @@ impl State {
             .any(|a| if let Action::Hide = *a { true } else { false })
     }
 
-    fn apply_end_of_codeblock_actions(&mut self, events: &mut Vec<Event>) {
+    fn apply_end_of_codeblock_actions(&mut self, events: &mut Vec<Event>, dry_run: bool) {
         for action in &self.actions {
             match *action {
                 Action::IncludeFile(ref path) => {
@@ -146,6 +146,9 @@ impl State {
                     ref program,
                     desired_exit_status,
                 } => {
+                    if dry_run {
+                        return;
+                    }
                     let spawn_result = Command::new(program)
                         .stdin(Stdio::piped())
                         .stdout(Stdio::piped())
@@ -220,7 +223,11 @@ fn parse_actions(info: &str) -> Result<Vec<Action>> {
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
-fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Event<'a>>> {
+fn event_filter<'a>(
+    state: &mut &mut State,
+    event: Event<'a>,
+    dry_run: bool,
+) -> Option<Vec<Event<'a>>> {
     use pulldown_cmark::Event::*;
     use pulldown_cmark::Tag::*;
 
@@ -243,7 +250,7 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
             state.should_hide()
         }
         End(CodeBlock(_)) => {
-            state.apply_end_of_codeblock_actions(&mut res);
+            state.apply_end_of_codeblock_actions(&mut res, dry_run);
             let hide = state.should_hide();
             state.actions.clear();
             state.code.clear();
@@ -257,30 +264,24 @@ fn event_filter<'a>(state: &mut &mut State, event: Event<'a>) -> Option<Vec<Even
     Some(res)
 }
 
-fn process_chapter(ctx: &PreprocessorContext, chapter: &mut Chapter) -> Result<()> {
-    let mut state = State::default();
+fn process_chapter(
+    ctx: &PreprocessorContext,
+    chapter: &mut Chapter,
+    state: &mut State,
+    dry_run: bool,
+) -> Result<()> {
     state.book_root = ctx.root.clone();
 
     let md = {
         let mut md = String::with_capacity(chapter.content.len() + 128);
         {
             let parser = Parser::new(&chapter.content)
-                .scan(&mut state, event_filter)
+                .scan(state, |s, e| event_filter(s, e, dry_run))
                 .flat_map(|events| events);
             cmark(parser, &mut md, None).map_err(|e| format!("{}", e))?;
         }
         md
     };
-    if let Some(err) = state.error {
-        return Err(err.chain_err(|| {
-            format!(
-                "{}: Preprocessing failed for chapter '{}' in file '{}'.",
-                PREPROCESSOR_NAME,
-                chapter.name,
-                chapter.path.display()
-            )
-        }));
-    }
     chapter.content = md;
 
     Ok(())
@@ -293,6 +294,7 @@ impl Preprocessor for RunCodeBlocks {
 
     fn run(&self, ctx: &PreprocessorContext, book: &mut Book) -> Result<()> {
         let mut result = Ok(());
+        let mut state = State::default();
         let globs = globset_from_strings(&self.globs)?;
         let mut amount_of_included_chapters = 0;
         book.for_each_mut(|item: &mut BookItem| {
@@ -300,12 +302,22 @@ impl Preprocessor for RunCodeBlocks {
                 return;
             }
             if let BookItem::Chapter(ref mut chapter) = *item {
-                if exclude_chapter(&globs, chapter) {
-                    return;
+                let dry_run = exclude_chapter(&globs, chapter);
+                if !dry_run {
+                    amount_of_included_chapters += 1;
                 }
-                amount_of_included_chapters += 1;
-                if let Err(err) = process_chapter(ctx, chapter) {
+                if let Err(err) = process_chapter(ctx, chapter, &mut state, dry_run) {
                     result = Err(err);
+                }
+                if let Some(err) = state.error.take() {
+                    result = Err(err.chain_err(|| {
+                        format!(
+                            "{}: Preprocessing failed for chapter '{}' in file '{}'.",
+                            PREPROCESSOR_NAME,
+                            chapter.name,
+                            chapter.path.display()
+                        )
+                    }));
                 }
             }
         });

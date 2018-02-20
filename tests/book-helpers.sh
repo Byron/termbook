@@ -8,11 +8,25 @@ function book_sandbox () {
   export MDBOOK_BUILD__BUILD_DIR OUTPUT_DIR="$MDBOOK_BUILD__BUILD_DIR"
 }
 
+function copy-book () {
+  local book_dir="${1:?}"
+  if ! [ -d "$book_dir" ]; then
+    echo 1>&2 "'$book_dir' must be a directory, containing a book"
+    return 1
+  fi
+
+  local basename="${book_dir##*/}"
+  rm -Rf "$basename"
+  cp -R "$book_dir" "$basename"
+
+  export BOOK="$basename"
+}
+
 function make-book () {
   local index="${1:?}"
   local basename="${index##*/}"
   basename="${basename%.*}"
-  
+
   mkdir -p "$basename"
   cat <<'EOF' > "$basename/book.toml"
 [book]

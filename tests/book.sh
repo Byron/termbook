@@ -30,51 +30,6 @@ title "termbook completions"
   )
 )
 
-title "termbook playback"
-(sandboxed
-  args=("$exe" play)
-  
-  (when "given a simple book"
-    make-book "$fixture/books/no-markers.md"
-    
-    (with "default arguments"
-
-      it "succeeds and prints out everything nicely" && {
-        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
-        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
-      }
-    )
-    
-    (with "characters per second set"
-      it "succeeds and prints out everything nicely" && {
-        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
-        expect_run $SUCCESSFULLY "${args[@]}" --characters-per-second 40 "$BOOK"
-      }
-    )
-    
-    (with "a chapter set that does not exist and one that does"
-      it "succeeds and prints out the matching chapter" && {
-        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
-        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" 'does-not-exist*' 'Intro*'
-      }
-    )
-    
-    (with "a chapter identified by the section number"
-      it "succeeds and prints out the matching chapter" && {
-        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
-        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" '1.'
-      }
-    )
-    
-    (with "a chapter that does not match anything"
-      it "fails" && {
-        WITH_SNAPSHOT="$snapshot/playback-no-chapter-matches" \
-        expect_run $WITH_FAILURE "${args[@]}" "$BOOK" 'cannot-match-anything'
-      }
-    )
-  )
-)
-
 title "termbook build"
 (sandboxed
   (with "rewrite enabled"
@@ -82,7 +37,7 @@ title "termbook build"
 
     (with "a chapter filter"
       (when "the filter does not match anything"
-        make-book "$fixture/books/no-markers.md"
+        copy-book "$fixture/books/multi-chapter-with-exec-and-prepare"
 
         it "fails with an error" && {
           WITH_SNAPSHOT="$snapshot/build-filter-no-match" \
@@ -90,11 +45,15 @@ title "termbook build"
         }
       )
       (when "there is one matching filter by chapter and one unmatching filter"
-        make-book "$fixture/books/exec-blank.md"
+        copy-book "$fixture/books/multi-chapter-with-exec-and-prepare"
 
         it "succeeds" && {
           WITH_SNAPSHOT="$snapshot/build-filter-match-chapter" \
-          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" some-nonexisting-chapter "1."
+          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" some-nonexisting-chapter "2."
+        }
+
+        it "applies everything but will not execute anything" && {
+          expect_snapshot "$snapshot/build-filter-match-single-chapter-book" "$OUTPUT_DIR/markdown-rewrite"
         }
       )
       (when "there is one matching filter by name"
@@ -298,6 +257,51 @@ EOF
           expect_snapshot "$snapshot/book-hide-on-prepare" "$OUTPUT_DIR/markdown-rewrite"
         }
       )
+    )
+  )
+)
+
+title "termbook playback"
+(sandboxed
+  args=("$exe" play)
+
+  (when "given a simple book"
+    make-book "$fixture/books/no-markers.md"
+
+    (with "default arguments"
+
+      it "succeeds and prints out everything nicely" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+      }
+    )
+
+    (with "characters per second set"
+      it "succeeds and prints out everything nicely" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" --characters-per-second 40 "$BOOK"
+      }
+    )
+
+    (with "a chapter set that does not exist and one that does"
+      it "succeeds and prints out the matching chapter" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" 'does-not-exist*' 'Intro*'
+      }
+    )
+
+    (with "a chapter identified by the section number"
+      it "succeeds and prints out the matching chapter" && {
+        WITH_SNAPSHOT="$snapshot/playback-book-no-markers" \
+        expect_run $SUCCESSFULLY "${args[@]}" "$BOOK" '1.'
+      }
+    )
+
+    (with "a chapter that does not match anything"
+      it "fails" && {
+        WITH_SNAPSHOT="$snapshot/playback-no-chapter-matches" \
+        expect_run $WITH_FAILURE "${args[@]}" "$BOOK" 'cannot-match-anything'
+      }
     )
   )
 )

@@ -1375,7 +1375,7 @@ dependencies = [
 
 [[package]]
 name = "termbook"
-version = "1.3.0"
+version = "1.4.0"
 dependencies = [
  "atty 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "globset 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1388,12 +1388,12 @@ dependencies = [
 
 [[package]]
 name = "termbook-cli"
-version = "1.3.0"
+version = "1.4.0"
 dependencies = [
  "clap 2.30.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pulldown-cmark-to-cmark 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "termbook 1.3.0",
+ "termbook 1.4.0",
 ]
 
 [[package]]

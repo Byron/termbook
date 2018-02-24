@@ -1,0 +1,17 @@
+class Termbook < Formula
+  version '${VERSION}'
+  desc "A runner for `mdbooks` to keep your documentation tested."
+  homepage "https://github.com/Byron/termbook"
+
+  if OS.mac?
+      url "https://github.com/Byron/termbook/releases/download/#{version}/termbook-#{version}-x86_64-apple-darwin.tar.gz"
+      sha256 "${OSX_SHA256}"
+  elsif OS.linux?
+      url "https://github.com/Byron/termbook/releases/download/#{version}/termbook-#{version}-x86_64-unknown-linux-musl.tar.gz"
+      sha256 "${LINUX_SHA256}"
+  end
+
+  def install
+    bin.install "termbook"
+  end
+end

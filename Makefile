@@ -7,7 +7,11 @@ help:
 	$(info stateless-journey-tests | Run only stateless journey)
 	$(info asciinema-no-upload     | record the default eye-candy video to a file)
 	$(info asciinema-upload        | record the intro video and upload it)
+	$(info update-homebrew         | wait for the current version to be ready on github and update homebrew file)
 	$(info docs                    | Build the documentation with the debug binary)
+
+update-homebrew:
+	./bin/update-homebrew-formula.sh $$(git tag | tail -1) ./pkg/brew/termbook.rb.in > ./pkg/brew/termbook.rb
 
 always:
 

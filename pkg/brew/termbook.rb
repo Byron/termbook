@@ -1,4 +1,5 @@
 class Termbook < Formula
+  # ---> DO NOT EDIT <--- (this file was generated from ./pkg/brew/termbook.rb.in
   version '1.4.0'
   desc "A runner for `mdbooks` to keep your documentation tested."
   homepage "https://github.com/Byron/termbook"

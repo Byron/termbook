@@ -1,4 +1,5 @@
 class Termbook < Formula
+  # ${TEMPLATE_NOTE}
   version '${VERSION}'
   desc "A runner for `mdbooks` to keep your documentation tested."
   homepage "https://github.com/Byron/termbook"

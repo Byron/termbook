@@ -1,3 +1,4 @@
+[![](http://meritbadge.herokuapp.com/termbook)](https://crates.io/crates/termbook)
 [![Build Status](https://travis-ci.org/Byron/termbook.svg?branch=master)](https://travis-ci.org/Byron/termbook)
 [![dependency status](https://deps.rs/repo/github/byron/termbook/status.svg)](https://deps.rs/repo/github/byron/termbook)
 

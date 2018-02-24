@@ -11,7 +11,7 @@ help:
 	$(info docs                    | Build the documentation with the debug binary)
 
 update-homebrew:
-	./bin/update-homebrew-formula.sh $$(git tag | tail -1) ./pkg/brew/termbook.rb.in > ./pkg/brew/termbook.rb
+	@set -ex; ./bin/update-homebrew-formula.sh $$(git tag | tail -1) ./pkg/brew/termbook.rb.in ./pkg/brew/termbook.rb
 
 always:
 

@@ -1,17 +1,20 @@
 #!/bin/bash
 set -eu -o pipefail
 
-[[ $# != 2 ]] && {
-  echo 1>&2 "USAGE: $0 <tag> <homebrew-template>"
+[[ $# != 3 ]] && {
+  echo 1>&2 "USAGE: $0 <tag> <homebrew-template> <homebrew-file>"
   exit 2
 }
 
 VERSION="${1:?}"
 TEMPLATE_FILE="${2:?}"
+HOMEBREW_FILE="${3:?}"
 
 OSX_FILE=termbook-${VERSION}-x86_64-apple-darwin.tar.gz
 LINUX_FILE=termbook-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 URL_PREFIX=https://github.com/Byron/termbook/releases/download/${VERSION}
+
+trap "rm -f $OSX_FILE $LINUX_FILE; exit 1" INT
 
 SLEEP_INTERVAL=5
 ROUND=0
@@ -40,4 +43,6 @@ OSX_SHA256="$($SHA_SUM $OSX_FILE | awk '{print $1}')"
 LINUX_SHA256="$($SHA_SUM $LINUX_FILE | awk '{print $1}')"
 export VERSION OSX_SHA256 LINUX_SHA256
 
-envsubst < $TEMPLATE_FILE
+envsubst < $TEMPLATE_FILE > $HOMEBREW_FILE && {
+  echo 1>&2 'homebrew update finished'
+}

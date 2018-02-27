@@ -28,10 +28,20 @@ Installation documentation can [be found here][installation-docs].
 
 ### Roadmap
 
+### Add 'replace' support
+
+Currently we can only append the output of programs. However, if there was 'replace',
+we can implement html converters, such as https://github.com/ivanceras/svgbobrus.
+
+That way, diagrams can be written in text, either in the code-block, or in files which
+are then included via 'include-file'.
+
 #### `termbook` renderer plugin programs for `mdbook`
 
 Provide all renderers in `termbook` as standalone `mdbook` compatible plugin
 renderers, to allow easier integration with the `mdbook` binary.
+
+Depends on https://github.com/rust-lang-nursery/mdBook/issues/631
 
 #### `termbook` preprocessor plugin programs  for `mdbook`
 

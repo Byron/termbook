@@ -107,6 +107,21 @@ EOF
         }
       )
 
+      (with "a an existing executable file (without newline) relative to the book"
+        make-book "$fixture/books/include-file-existing-with-code-inside.md"
+        cat <<'EOF' > "$BOOK/code.sh"
+echo -n 'this is the post-call'
+EOF
+
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+        }
+
+        it "wrote the included code and executed it" && {
+          expect_snapshot "$snapshot/include-file-existing-executable-no-newline" "$OUTPUT_DIR/markdown-rewrite"
+        }
+      )
+
       (with "a an existing executable file relative to the book"
         make-book "$fixture/books/include-file-existing-with-code-inside.md"
         cat <<'EOF' > "$BOOK/code.sh"

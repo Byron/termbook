@@ -169,7 +169,7 @@ impl State {
                                 .map_err(Into::into)
                         });
                     match spawn_result {
-                        Ok(output) => {
+                        Ok(mut output) => {
                             eprintln!(
                                 "{}: Executed program '{}' with '{:?}'.",
                                 PREPROCESSOR_NAME, program, self.code
@@ -188,12 +188,22 @@ impl State {
                                 use pulldown_cmark::Event::*;
                                 use pulldown_cmark::Tag::*;
                                 events.push(Start(CodeBlock("output".into())));
-                                events.push(Text(
-                                    String::from_utf8_lossy(&output.stdout).into_owned().into(),
-                                ));
-                                events.push(Text(
-                                    String::from_utf8_lossy(&output.stderr).into_owned().into(),
-                                ));
+                                events.push(Text({
+                                    if let Some(c) = output.stdout.last().cloned() {
+                                        if c != b'\n' {
+                                            output.stdout.push(b'\n');
+                                        }
+                                    }
+                                    String::from_utf8_lossy(&output.stdout).into_owned().into()
+                                }));
+                                events.push(Text({
+                                    if let Some(c) = output.stderr.last().cloned() {
+                                        if c != b'\n' {
+                                            output.stderr.push(b'\n');
+                                        }
+                                    }
+                                    String::from_utf8_lossy(&output.stderr).into_owned().into()
+                                }));
                                 events.push(End(CodeBlock("output".into())));
                             }
                         }

@@ -93,6 +93,20 @@ EOF
           expect_snapshot "$snapshot/include-file-existing" "$OUTPUT_DIR/markdown-rewrite"
         }
       )
+
+      (with "a included text that is not executed"
+        make-book "$fixture/books/include-file-without-newline.md"
+        echo -n "something without newline" > "$BOOK/file-with-no-newline"
+
+        it "succeeds" && {
+          expect_run $SUCCESSFULLY "${args[@]}" "$BOOK"
+        }
+
+        it "created valid markdown" && {
+          expect_snapshot "$snapshot/include-file-no-newline" "$OUTPUT_DIR/markdown-rewrite"
+        }
+      )
+
       (with "a an existing executable file relative to the book"
         make-book "$fixture/books/include-file-existing-with-code-inside.md"
         cat <<'EOF' > "$BOOK/code.sh"

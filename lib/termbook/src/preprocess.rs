@@ -108,6 +108,9 @@ impl State {
                     match File::open(&file_path) {
                         Ok(mut f) => match f.read_to_string(&mut buf) {
                             Ok(_) => {
+                                if !buf.ends_with('\n') {
+                                    buf.push('\n')
+                                }
                                 self.code.push_str(&buf);
                                 let pos = events.len() - 1;
                                 events.insert(pos, Event::Text(buf.into()));

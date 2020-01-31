@@ -12,9 +12,7 @@ keywords = ["markdown", "terminal", "common-mark"]
 repository = "https://github.com/Byron/termbook"
 homepage = "https://github.com/Byron/termbook"
 documentation = "https://byron.github.io/termbook"
-readme = "../README.md"
 edition = "2018"
-exclude = ["HomebrewFormula"]
 
 
 [[bin]]

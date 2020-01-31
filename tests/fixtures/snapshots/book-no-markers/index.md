@@ -20,4 +20,6 @@ fn foo() {
 ````bash
 $ echo 'something'
 $ echo 'that will never be executed'
-````
+````low from included code
+this is the post-call
+```````

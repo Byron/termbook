@@ -66,7 +66,7 @@ title "termbook build"
       )
     )
     (with "an 'include-file' codeblock"
-      (with "a an non-existing file"
+      (with "a non-existing file"
         make-book "$fixture/books/include-file-non-existing.md"
 
         it "fails with an error" && {

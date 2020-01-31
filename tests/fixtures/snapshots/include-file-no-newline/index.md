@@ -3,4 +3,8 @@
 
 here comes the stuff included from file
 something without newline
+```` {
+
+}
+```
 ````

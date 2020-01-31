@@ -1,11 +1,23 @@
 #!/bin/bash
 
-WHITE="$(tput setaf 9 || echo -n '')"
-YELLOW="$(tput setaf 3 || echo -n '')"
-GREEN="$(tput setaf 2 || echo -n '')"
-RED="$(tput setaf 1 || echo -n '')"
+WHITE="$(tput setaf 9 2>/dev/null || echo -n '')"
+YELLOW="$(tput setaf 3 2>/dev/null || echo -n '')"
+GREEN="$(tput setaf 2 2>/dev/null || echo -n '')"
+RED="$(tput setaf 1 2>/dev/null || echo -n '')"
 OFFSET=( )
 STEP="  "
+
+function with_program () {
+  local program="${1:?}"
+  hash "$program" &>/dev/null || {
+    function expect_run () {
+      echo 1>&2 "${WHITE} - skipped (missing program)"
+    }
+    function expect_run_sh () {
+      echo 1>&2 "${WHITE} - skipped (missing program)"
+    }
+  }
+}
 
 function title () {
   echo "$WHITE-----------------------------------------------------"
@@ -18,6 +30,14 @@ function _context () {
   shift
   echo 1>&2 "${YELLOW}${OFFSET[*]:-}[$name] $*"
   OFFSET+=("$STEP")
+}
+
+function step () {
+  _note step "${WHITE}" "$*"
+}
+
+function stepn () {
+  step "$*" $'\n'
 }
 
 function with () {
@@ -47,13 +67,21 @@ function shortcoming () {
   _note shortcoming "${RED}" "$*"
 }
 
+function step () {
+  _note step "${WHITE}" "$*"
+}
+
+function stepn () {
+  step "$*" $'\n'
+}
+
 function fail () {
   echo 1>&2 "${RED} $*"
   exit 1
 }
 
 function sandbox () {
-  sandbox_tempdir="$(mktemp -t sandbox.XXXX -d)"
+  sandbox_tempdir="$(mktemp -t sandbox.XXXXXX -d)"
   # shellcheck disable=2064
   trap "popd >/dev/null" EXIT
   pushd "$sandbox_tempdir" >/dev/null \
@@ -74,16 +102,17 @@ function expect_exists () {
 }
 
 function expect_run_sh () {
-  expect_run "${1:?}" bash -c "${2:?}"
+  expect_run "${1:?}" bash -c -eu -o pipefail "${2:?}"
 }
 
 function expect_snapshot () {
   local expected=${1:?}
   local actual=${2:?}
   if ! [ -e "$expected" ]; then
+    mkdir -p "${expected%/*}"
     cp -R "$actual" "$expected"
   fi
-  expect_run 0 diff -r "$expected" "$actual"
+  expect_run 0 diff -r -N "$expected" "$actual"
 }
 
 function expect_run () {
@@ -91,29 +120,40 @@ function expect_run () {
   shift
   local output=
   set +e
-  output="$("$@" 2>&1)"
+  if [[ -n "${SNAPSHOT_FILTER-}" ]]; then
+    output="$("$@" 2>&1 | "$SNAPSHOT_FILTER")"
+  else
+    output="$("$@" 2>&1)"
+  fi
 
   local actual_exit_code=$?
   if [[ "$actual_exit_code" == "$expected_exit_code" ]]; then
     if [[ -n "${WITH_SNAPSHOT-}" ]]; then
       local expected="$WITH_SNAPSHOT"
       if ! [ -f "$expected" ]; then
+        mkdir -p "${expected%/*}"
         echo -n "$output" > "$expected" || exit 1
       fi
       if ! diff "$expected" <(echo -n "$output"); then
         echo 1>&2 "${RED} - FAIL"
-        echo 1>&2 "${WHITE}\$$*"
+        echo 1>&2 "${WHITE}\$ $*"
         echo 1>&2 "Output snapshot did not match snapshot at '$expected'"
         echo 1>&2 "$output"
+        if [ -n "${ON_ERROR:-}" ]; then
+          eval "$ON_ERROR"
+        fi
         exit 1
       fi
     fi
     echo 1>&2
   else
     echo 1>&2 "${RED} - FAIL"
-    echo 1>&2 "${WHITE}\$$*"
+    echo 1>&2 "${WHITE}\$ $*"
     echo 1>&2 "${RED}Expected actual status $actual_exit_code to be $expected_exit_code"
     echo 1>&2 "$output"
+    if [ -n "${ON_ERROR:-}" ]; then
+      eval "$ON_ERROR"
+    fi
     exit 1
   fi
   set -e

@@ -1,3 +1,4 @@
 run-code-blocks: Executed program 'bash' with '"echo \'preparation\'\necho \'the block executed after \"prep\"\'\n"'.
+run-code-blocks: Executed program 'bash' with '"echo \'preparation\'\necho \'the block executed after \"prep\"\'\n"'.
 Wrote markdown file at 'index.md'.
 Wrote markdown file at 'chapter.md'.

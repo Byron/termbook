@@ -23,11 +23,11 @@ doc = false
 doctest = false
 
 [dependencies]
-pulldown-cmark-to-cmark = "1"
-clap = "2"
-lazy_static = "1.0.0"
+pulldown-cmark-to-cmark = "1.2.4"
+clap = "2.33.0"
+lazy_static = "1.4.0"
 
 [dependencies.termbook]
-version = "1.4.2"
+version = "1.4.1"
 path = "../termbook"
 

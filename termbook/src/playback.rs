@@ -4,7 +4,7 @@ use mdbook::errors::Error;
 use syntect::parsing::SyntaxSet;
 use pulldown_cmark::{Event, Parser, Tag};
 
-use mdcat::{push_tty, ResourceAccess, Terminal, TerminalSize};
+use mdcat::{push_tty, ResourceAccess, TerminalCapabilities, TerminalSize};
 use atty::{self, Stream};
 use {exclude_chapter, globset_from_strings};
 
@@ -122,9 +122,9 @@ impl Renderer for Playback {
 
                 let buf_len = buf.len() + 2;
                 events.push(Event::SoftBreak);
-                events.push(Event::Start(Tag::Header(1)));
+                events.push(Event::Start(Tag::Heading(1)));
                 events.push(Event::Text(buf.into()));
-                events.push(Event::End(Tag::Header(1)));
+                events.push(Event::End(Tag::Heading(1)));
                 events.push(Event::Text(
                     (0..buf_len).map(|_| '=').collect::<String>().into(),
                 ));
@@ -139,7 +139,7 @@ impl Renderer for Playback {
         }
         push_tty(
             &mut DelayPrinter::new(stdout(), self.delay_per_character),
-            Terminal::detect(),
+            &TerminalCapabilities::detect(),
             TerminalSize::detect().unwrap_or_default(),
             events.into_iter(),
             &cd,

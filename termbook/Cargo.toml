@@ -11,11 +11,11 @@ homepage = "https://github.com/Byron/termbook/lib/termbook"
 documentation = "https://docs.rs/crate/termbook"
 
 [dependencies]
-mdbook = "0.1.2"
-pulldown-cmark-to-cmark = "1"
-pulldown-cmark = "0.1.0"
-mdcat = "0.8.0"
-syntect = "2.0.0"
-atty = "0.2.6"
-globset = "0.3.0"
+mdbook = "0.3.5"
+pulldown-cmark-to-cmark = "2.0.1"
+pulldown-cmark = "0.6.1"
+mdcat = { version = "0.15.0", default-features = false }
+syntect = "3.1.0"
+atty = "0.2.14"
+globset = "0.4.4"
 

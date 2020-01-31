@@ -305,41 +305,37 @@ impl Preprocessor for RunCodeBlocks {
         PREPROCESSOR_NAME
     }
 
-    fn run(&self, ctx: &PreprocessorContext, book: &mut Book) -> Result<()> {
-        let mut result = Ok(());
+    fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book> {
         let mut state = State::default();
         let globs = globset_from_strings(&self.globs)?;
         let mut amount_of_included_chapters = 0;
-        book.for_each_mut(|item: &mut BookItem| {
-            if result.is_err() {
-                return;
-            }
+        for item in book.sections.iter_mut() {
             if let BookItem::Chapter(ref mut chapter) = *item {
                 let dry_run = exclude_chapter(&globs, chapter);
                 if !dry_run {
                     amount_of_included_chapters += 1;
                 }
-                if let Err(err) = process_chapter(ctx, chapter, &mut state, dry_run) {
-                    result = Err(err);
-                }
-                if let Some(err) = state.error.take() {
-                    result = Err(err.chain_err(|| {
+
+                process_chapter(ctx, chapter, &mut state, dry_run)?;
+                state.error = state.error.map(|err| {
+                    err.chain_err(|| {
                         format!(
                             "{}: Preprocessing failed for chapter '{}' in file '{}'.",
                             PREPROCESSOR_NAME,
                             chapter.name,
                             chapter.path.display()
                         )
-                    }));
-                }
+                    })
+                });
             }
-        });
-        if result.is_err() {
-            return result;
+        };
+
+        if let Some(error) = state.error {
+            return Err(error);
         }
         if !globs.is_empty() && amount_of_included_chapters == 0 {
             return Err("globs did not match any chapter.".into());
         }
-        result
+        Ok(book)
     }
 }

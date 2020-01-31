@@ -49,6 +49,6 @@ fn globset_from_strings(globs: &[String]) -> Result<GlobSet, mdbook::errors::Err
 /// The `RunCodeBlocks` preprocessor will be added to it.
 pub fn load(dir: &Path, globs: Vec<String>) -> mdbook::errors::Result<MDBook> {
     let mut md = MDBook::load(dir)?;
-    md.with_preprecessor(RunCodeBlocks::new(globs));
+    md.with_preprocessor(RunCodeBlocks::new(globs));
     Ok(md)
 }

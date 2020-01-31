@@ -235,7 +235,7 @@ fn parse_actions(info: &str) -> Result<Vec<Action>> {
     Ok(res)
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::needless_pass_by_value))]
 fn event_filter<'a>(
     state: &mut &mut State,
     event: Event<'a>,
@@ -290,7 +290,7 @@ fn process_chapter(
         {
             let parser = Parser::new(&chapter.content)
                 .scan(state, |s, e| event_filter(s, e, dry_run))
-                .flat_map(|events| events);
+                .flatten();
             cmark(parser, &mut md, None).map_err(|e| format!("{}", e))?;
         }
         md

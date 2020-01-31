@@ -5,7 +5,7 @@ use mdbook::errors::Result;
 use mdbook::errors::Error;
 use pulldown_cmark::{Event, Parser};
 use pulldown_cmark_to_cmark::fmt::cmark;
-use {exclude_chapter, globset_from_strings};
+use crate::{exclude_chapter, globset_from_strings};
 
 use std::process::{Child, Command, Stdio};
 use std::io::{Read, Write};

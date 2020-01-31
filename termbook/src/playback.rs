@@ -6,7 +6,7 @@ use pulldown_cmark::{Event, Parser, Tag};
 
 use mdcat::{push_tty, ResourceAccess, TerminalCapabilities, TerminalSize};
 use atty::{self, Stream};
-use {exclude_chapter, globset_from_strings};
+use crate::{exclude_chapter, globset_from_strings};
 
 use std::io::{self, stdout, Write};
 use std::env::current_dir;

@@ -2,6 +2,8 @@
 name = "termbook"
 version = "1.4.2"
 authors = ["Sebastian Thiel <byronimo@gmail.com>"]
+readme = "../README.md"
+edition = "2018"
 
 description = "The library behind the `termbook-cli`."
 license = "Apache-2.0"

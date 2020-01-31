@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::env::current_dir;
 use termbook::mdbook::errors::Error;
 
-use types::{BuildContext, PlaybackContext};
+use crate::types::{BuildContext, PlaybackContext};
 
 pub fn generate_completions(mut app: App, args: &ArgMatches) -> Result<(), Error> {
     let shell = args.value_of("shell")

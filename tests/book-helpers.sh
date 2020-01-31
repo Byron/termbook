@@ -27,21 +27,21 @@ function make-book () {
   local basename="${index##*/}"
   basename="${basename%.*}"
 
-  mkdir -p "$basename"
+  mkdir -p "$basename/src"
   cat <<'EOF' > "$basename/book.toml"
 [book]
 authors = []
 multilingual = false
-src = "."
+src = "src"
 EOF
 
-  cat <<'EOF' > "$basename/SUMMARY.md"
+  cat <<'EOF' > "$basename/src/SUMMARY.md"
 # Summary
 
  - [Introduction](./index.md)
 EOF
 
-  cp "$index" "$basename/index.md"
+  cp "$index" "$basename/src/index.md"
 
   export BOOK="$basename"
 }

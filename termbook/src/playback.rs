@@ -15,6 +15,7 @@ use std::thread::sleep;
 use std::time::Duration;
 use std::str;
 
+/// A renderer simulating someone typing the books markdown with colors into the current terminal.
 pub struct Playback {
     delay_per_character: Duration,
     globs: Vec<String>,

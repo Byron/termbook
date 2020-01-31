@@ -1,6 +1,6 @@
 [package]
 name = "termbook-cli"
-version = "1.4.0"
+version = "1.4.1"
 authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 
 description = """`termbook` is a command-line tool to build `mdbook`'s \
@@ -23,11 +23,12 @@ doc = false
 doctest = false
 
 [dependencies]
+env_logger = "0.7.1"
 pulldown-cmark-to-cmark = "1.2.4"
 clap = "2.33.0"
 lazy_static = "1.4.0"
 
 [dependencies.termbook]
-version = "1.4.1"
+version = "1.4.2"
 path = "../termbook"
 

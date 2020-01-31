@@ -23,7 +23,7 @@ impl Renderer for Rewrite {
                 let dir = ctx.destination
                     .join(&chapter.path.parent().expect("at least filename"));
                 create_dir_all(&dir)?;
-                let output_file = dir.join(&chapter.path);
+                let output_file = dir.join(&chapter.path.file_name().expect("a filename to be present"));
                 let mut fout = OpenOptions::new()
                     .write(true)
                     .create(true)

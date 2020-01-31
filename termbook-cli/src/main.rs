@@ -3,6 +3,7 @@ extern crate clap;
 #[macro_use]
 extern crate lazy_static;
 extern crate termbook;
+extern crate env_logger;
 
 mod cli;
 mod parse;
@@ -57,6 +58,8 @@ fn main() {
     let app = cli::app();
     let appc = app.clone();
     let matches = app.get_matches();
+
+    env_logger::init();
     match matches.subcommand() {
         ("completions", Some(args)) => {
             ok_or_exit(parse::generate_completions(appc, args));

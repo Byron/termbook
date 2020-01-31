@@ -390,6 +390,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "env_logger"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36"
+dependencies = [
+ "atty",
+ "humantime",
+ "log 0.4.8",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
 name = "error-chain"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -923,7 +936,7 @@ dependencies = [
  "chrono",
  "clap",
  "elasticlunr-rs",
- "env_logger",
+ "env_logger 0.6.2",
  "error-chain",
  "gitignore",
  "handlebars",
@@ -1963,9 +1976,10 @@ dependencies = [
 
 [[package]]
 name = "termbook-cli"
-version = "1.4.0"
+version = "1.4.1"
 dependencies = [
  "clap",
+ "env_logger 0.7.1",
  "lazy_static",
  "pulldown-cmark-to-cmark 1.2.4",
  "termbook",

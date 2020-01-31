@@ -1,0 +1,33 @@
+[package]
+name = "termbook-cli"
+version = "1.4.0"
+authors = ["Sebastian Thiel <byronimo@gmail.com>"]
+
+description = """`termbook` is a command-line tool to build `mdbook`'s \
+              while executing `bash` codeblocks and collecting their output to \
+              become part of the `mdbook`.
+              """
+license = "Apache-2.0"
+keywords = ["markdown", "terminal", "common-mark"]
+repository = "https://github.com/Byron/termbook"
+homepage = "https://github.com/Byron/termbook"
+documentation = "https://byron.github.io/termbook"
+readme = "README.md"
+exclude = ["HomebrewFormula"]
+
+
+[[bin]]
+name = "termbook"
+path = "src/main.rs"
+doc = false
+doctest = false
+
+[dependencies]
+pulldown-cmark-to-cmark = "1"
+clap = "2"
+lazy_static = "1.0.0"
+
+[dependencies.termbook]
+version = "1.4.2"
+path = "../termbook"
+

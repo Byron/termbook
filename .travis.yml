@@ -9,7 +9,6 @@ sudo: required
 env:
   global:
     - CRATE_NAME=termbook
-    - secure: gRfVsUkRew4yQE0UrzTLih06+otLOKSm61hRqvVrw9A+BPlE/cxT96N0H89N6+xnSF6ye+gdB12KIq0qeCSG76l3SqL6X2Y00vMn5TAd/KjSgQ++A58V6fgYZnfjg4OvEx4vd76jz8OTu1HpITKLLL9zovdHur8hF3Cn7Y7/p6ROc3T0u0pzMwdbC2fj4+/OFhNt3Hj15LNvp/I5NAN8dewlke8ukgaN4sNnJNxgZkf1sKVBID4+f994G7kbCmdStMU04aHH0/T5j2vWqhxcOKS6xJuos3R9MpSefoOvrotYX7/iFubEjVzzny42lsoUBmw6JXi0xRyCCjbsv4WLWLnTFP+wAUgckZKunuAaZYfeysK7OnpbPRZ5rDtp64iRcssa5yYZWGfE8EXXlRMNfuNvNQEIzYsaHgseWh1W1oc1DeCE9GazOnmP3BNfLuDeV7qEAI29Zrt59QMkA3U1btHHRPhRa/GRBePWsh+1OSUjzTO8D4fSF/4Onx+ld/KJs62QH0w6w7xf7e6Wfm05+vUTYob6cRyr22ULdjrhp8UyMuKaEGtJtJIV4aLZu7WERYXx3x4v4EyYYph+u9Td2Pgk3xFZ/BOkWNaN5W7yc9qaxS7UvFnCe+yli7QR4uPk6Pm8ILirKFk5VzyATm+w6lcNU+enPcqtqvUPAzJJSCQ=
 
 matrix:
   include:
@@ -57,13 +56,12 @@ deploy:
   - provider: pages
     skip-cleanup: true
     local-dir: doc/book
-    github-token: "$GITHUB_TOKEN"
     on:
       repo: Byron/termbook
       branch: master
       condition: $ENABLE_TESTS = 1
   - api_key:
-      secure: nKsIFoaLOVCBrsdppYWCNuDMVu87sH7AVXdtGugm1ikGuQzqhtrsmLk1jyyvm/MYTZK6xjh5RhK/W6aDQjwX6XYPqEWG3KuGMqfqwtF0H1vcbAoxuc+LTyht/82IiN4jHMRWvRfFJrwLyCpgwOVTIWy/lejFO5D2fqasQOFo7/HBRLeVkhKyab9bCD97UBDlaNIeyBs9UB7dLHcKa+nqoQDEquehGS7NY0kO/DU79ia8tD3ymFgI4oo7W8eoFChcs2rbTUtnCQmb0r+ni/7JTTCtcx6iuE7YW3f/ryLgfmMv6aN2lF7QHgqxdZy65jeIfye55QTyoqO6APd7VPadOXAUsqwRInhNQl5T4sJklGKXr1bwSy3H3mbrQDyVWGl56P3sBYCnaGB2xzF80o7+8Xl5LAiUT2QbK/yKgU1DCPwOz9ap6Du5eF7qPyOoMaLLRLPfgFxO/loaEoQ+FG7yC7aEV/kPJQ8dpwDDQ9xYsQ1qM5qvsglBSWqZ33nHX7m5rXNMIPLeaNS0lPcswCU46Z0kSdHkKZkgNLaliRWTP2n/rXoPHoTKO97WvRFSsLgi8l/krGz7dLD4xUbzW1n63VDvrhfyFXjqXCVgkzRY2aOceNWolirF/UY0Xww+zR5hXiaToEZUV/RqNxQf4DAWXykRUHoBWpWcVeWklmCTweM=
+      secure: AYRrQudwoEOMcssQrT24Njkl8jy86L7d9Cn02xyIzjjPyUKNV2DWpvIEjblfj9P7Ta5LRgRtu8TDPg6JCOg8C1DnqsQD3yfjXIZljmDJXg+HZNK7bxPwjQfxfiklOLjFV6Tc8yfyKVdIM+CF08NXG4GVQFs6dHprdyvTMNHyNbr7rmv6ak+gA3Jo8UrkEEDwm1E39Wg/pWW43qZlWtUxCJP7N/VcITmNYv/ZBuTD1InNMW2NoMUXSEI0xMtLN99qUm7tlWw+9BAPj1VbMoolHjKiWn+9CKFMCBXI+yWOLihm1q8oG1f4lH+Boe+e0+6+6aIxA+GD0bFU5S0EYIPIbr1K/cHipUCuQIRpwrPJpy9JTeNNZTk6Xa+y5JzoC/31/xSx8IhUGnDYq+R04EEgH50eS1CAi/JO3ul+CPLSXkyvzljaSVx7HVpCSX5rX+2k5SWZEQu/VB1uIjAh7L0r7Rme/Cdx7UupgFLyCkiJcl33Fh02hywHeKIp63HlhUXf0wB6aUPI2Z3eDbqMxdxZaykaOwSQHoDNw45VoTzE6x++lCmKLOb4Ymfeev1ezTo5NeXT3frQp7n73KDOTmitjw/Bh9Atwa6R3ES8l9/O7iXGMAy3AP/xzBqdT47bWsxNCQOwKb6QmDsYWtDVMBcXCvpmKYD7Eq+j7KZhFct/5cs= 
     file_glob: true
     file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
     on:

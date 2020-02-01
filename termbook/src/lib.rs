@@ -1,10 +1,4 @@
-extern crate atty;
-extern crate globset;
-pub extern crate mdbook;
-extern crate mdcat;
-extern crate pulldown_cmark;
-extern crate pulldown_cmark_to_cmark;
-extern crate syntect;
+pub use mdbook;
 
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use mdbook::MDBook;

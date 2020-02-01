@@ -5,7 +5,7 @@ help:  ## Display this help
 
 always:
 
-$(EXE): $(shell find termbook-cli -name *.rs) $(shell find termbook -name *.rs) $(shell find . -name Cargo.toml)
+$(EXE): $(shell find src -name *.rs) $(shell find termbook -name *.rs) $(shell find . -name Cargo.toml)
 	cargo build
 
 ##@ Testing

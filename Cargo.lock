@@ -1976,7 +1976,7 @@ dependencies = [
 
 [[package]]
 name = "termbook-cli"
-version = "1.4.1"
+version = "1.4.2"
 dependencies = [
  "clap",
  "env_logger 0.7.1",

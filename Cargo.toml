@@ -1,6 +1,6 @@
 [package]
 name = "termbook-cli"
-version = "1.4.4"
+version = "1.4.5"
 authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 
 description = """`termbook` is a command-line tool to build `mdbook`'s \

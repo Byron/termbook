@@ -13,12 +13,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run tests
+    - name: Run journey tests
       run: |
         make stateless-journey-tests
+    - name: Generate documentation
+      if: success()
+      run: |
         make docs
     - name: Deploy Documentation to GitHub Pages
+      if: success()
       uses: crazy-max/ghaction-github-pages@v1.4.0
       with:
         build_dir: doc/book
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -1,6 +1,5 @@
 [![](http://meritbadge.herokuapp.com/termbook)](https://crates.io/crates/termbook)
-[![Build Status](https://travis-ci.org/Byron/termbook.svg?branch=master)](https://travis-ci.org/Byron/termbook)
-[![dependency status](https://deps.rs/repo/github/byron/termbook/status.svg)](https://deps.rs/repo/github/byron/termbook)
+![Rust](https://github.com/Byron/termbook/workflows/Rust/badge.svg)
 
 `termbook` is a command-line tool to build [`mdbook`'s][mdbook] while executing
 codeblocks and collecting their output to become part of the `mdbook`.

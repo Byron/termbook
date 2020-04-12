@@ -17,4 +17,8 @@ jobs:
       run: |
         make stateless-journey-tests
         make docs
+    - name: Deploy Documentation to GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v1.4.0
+      with:
+        build_dir: doc/book
 

@@ -14,10 +14,10 @@ name: release
 on:
   push:
     # Enable when testing release infrastructure on a branch.
-#    branches:
-#      - release
+    branches:
+      - release
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
 jobs:
   create-release:
     name: create-release

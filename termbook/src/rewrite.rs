@@ -1,10 +1,14 @@
-use mdbook::renderer::{RenderContext, Renderer};
-use mdbook::book::BookItem;
-use mdbook::errors::Result;
+use mdbook::{
+    renderer::{RenderContext, Renderer},
+    book::BookItem,
+    errors::Result
+};
 
-use std::fs::create_dir_all;
-use std::fs::OpenOptions;
-use std::io::Write;
+use std::{
+    fs::create_dir_all,
+    fs::OpenOptions,
+    io::Write
+};
 
 /// An implementation of a renderer which writes all preprocessed markdown files.
 ///

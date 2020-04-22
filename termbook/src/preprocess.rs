@@ -1,17 +1,22 @@
-use mdbook::preprocess::{Preprocessor, PreprocessorContext};
-use mdbook::BookItem;
-use mdbook::book::{Book, Chapter};
-use mdbook::errors::Result;
-use mdbook::errors::Error;
-use pulldown_cmark::{Event, Parser};
-use pulldown_cmark_to_cmark::fmt::cmark;
 use crate::{exclude_chapter, globset_from_strings};
 
-use std::process::{Child, Command, Stdio};
-use std::io::{Read, Write};
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::fs::File;
+use mdbook::{
+    preprocess::{Preprocessor, PreprocessorContext},
+    BookItem,
+    book::{Book, Chapter},
+    errors::Result,
+    errors::Error
+};
+use pulldown_cmark::{Event, Parser};
+use pulldown_cmark_to_cmark::fmt::cmark;
+
+use std::{
+    process::{Child, Command, Stdio},
+    io::{Read, Write},
+    collections::HashMap,
+    path::PathBuf,
+    fs::File
+};
 
 /// A preprocessor which runs specifically tagged codeblocks.
 pub struct RunCodeBlocks {

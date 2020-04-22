@@ -1,19 +1,24 @@
-use mdbook::renderer::{RenderContext, Renderer};
-use mdbook::book::BookItem;
-use mdbook::errors::Error;
+use crate::{exclude_chapter, globset_from_strings};
+
+use mdbook::{
+    renderer::{RenderContext, Renderer},
+    book::BookItem,
+    errors::Error
+};
 use syntect::parsing::SyntaxSet;
 use pulldown_cmark::{Event, Parser, Tag};
 
 use mdcat::{push_tty, ResourceAccess, TerminalCapabilities, TerminalSize};
 use atty::{self, Stream};
-use crate::{exclude_chapter, globset_from_strings};
 
-use std::io::{self, stdout, Write};
-use std::env::current_dir;
-use std::fmt::Write as FmtWrite;
-use std::thread::sleep;
-use std::time::Duration;
-use std::str;
+use std::{
+    io::{self, stdout, Write},
+    env::current_dir,
+    fmt::Write as FmtWrite,
+    thread::sleep,
+    time::Duration,
+    str
+};
 
 /// A renderer simulating someone typing the books markdown with colors into the current terminal.
 pub struct Playback {
